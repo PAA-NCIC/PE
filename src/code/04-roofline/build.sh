@@ -2,19 +2,18 @@
 #ins_set test
 g++ -O3 -c table.cpp
 g++ -O3 -c smtl.cpp
-g++ -O3 -c cpubm_x86.cpp
-g++ -O3 -c cpufp_x86.cpp
 ins_set=`lscpu | grep Flags`
 compile_commands=""
 
-link_sources="g++ -pthread -O3 -o cpufp table.o smtl.o cpubm_x86.o cpufp_x86.o"
+link_sources="g++ -pthread -O3 -o pe_bench table.o smtl.o cpubm_x86.o pe_bench.o"
+inst_flags=""
 #avx instruction set check
 if [[ $ins_set =~ "avx2" ]];
 then
   echo "avx2 supported"
   compile_commands=${compile_commands}"g++ -c asm/cpufp_kernel_x86_avx.S;"
-  link_sources=${link_sources}"cpufp_kernel_x86_avx.o"
-
+  link_sources=${link_sources}" cpufp_kernel_x86_avx.o"
+  inst_flags=${inst_flags}" -DAVX" 
 fi
 
 #avx512 instruction set check
@@ -23,6 +22,7 @@ then
   echo "avx512 supported"
   compile_commands=${compile_commands}"g++ -c asm/cpufp_kernel_x86_avx512f.S;"
   link_sources=${link_sources}" cpufp_kernel_x86_avx512f.o"
+  inst_flags=${inst_flags}" -DAVX512" 
 fi
 
 #avx512_vnni instruction set check
@@ -31,6 +31,7 @@ then
   echo "avx512vnni supported"
   compile_commands=${compile_commands}"g++ -c asm/cpufp_kernel_x86_avx512_vnni.S;"
   link_sources=${link_sources}" cpufp_kernel_x86_avx512_vnni.o"
+  inst_flags=${inst_flags}" -DAVX512_VNNI" 
 fi
 
 #avx_vnni instruction set check
@@ -41,8 +42,15 @@ then
   link_sources=${link_sources}" cpufp_kernel_x86_avx_vnni.o"
 fi
 
+echo ${inst_flags}
+g++ -O3 -c cpubm_x86.cpp ${inst_flags}
+g++ -O3 -c pe_bench.cpp ${inst_flags}
 eval ${compile_commands}
-eval ${link_sources}$
+echo ${link_sources}
+eval ${link_sources}
+
+#clean
+rm *.o
 
 #for file in `ls .`; do
 #  echo $file
