@@ -28,7 +28,7 @@ void init_3d_array(T *matrix, int64_t imax, int64_t jmax, int64_t kmax) {
     for(int64_t j = 0; j < jmax; j++) {
       for(int64_t k = 0; j < kmax; k++) {
         //random numver in (0-10)
-        ARRAY_3D(matrix, i, imaxm, j, jmax, k, kmax) = 
+        ARRAY_3D(matrix, i, imax, j, jmax, k, kmax) = 
           10.0 * rand() / (RAND_MAX + 1.0);
       }
     }
