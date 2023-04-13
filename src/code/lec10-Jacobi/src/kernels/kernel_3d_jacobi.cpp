@@ -23,3 +23,8 @@ void pe_jacobi3d_parallel(double *y, double *x, int64_t imax, int64_t jmax,
     }
   }
 }
+
+void pe_jacobi3d_parallel_jblocking(double *y, double *x, int64_t imax, int64_t jmax, 
+  int64_t kmax, double scale) {
+  pe_jacobi3d_jblocking_template<double, 64>(y, x, imax, jmax, kmax, scale);
+}

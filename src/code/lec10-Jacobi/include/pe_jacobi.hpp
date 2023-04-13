@@ -54,20 +54,23 @@ void pe_jacobi3d_template(T *y, T *x, int64_t imax, int64_t jmax,
   }
 }
 
-template <typename T, unsigned int KBLOCK>
-void pe_jacobi3d_blocking_template(T *y, T *x, int64_t imax, int64_t jmax, 
+template <typename T, unsigned int JBLOCK>
+void pe_jacobi3d_jblocking_template(T *y, T *x, int64_t imax, int64_t jmax, 
 		int64_t kmax, T scale){
-  int64_t i, j, k;
-  for(i = 1; i < imax-1; i++) {
-    for(j = 1; j < jmax-1; j++) {
-      for(k = 1; k < kmax-1; k++) {
-        ARRAY_2D(y, j, jmax, k, kmax) = 
-          scale * ( ARRAY_3D(x, i-1, j, k, imax, jmax, kmax) +
-          ARRAY_3D(x, i, j-1, k, imax, jmax, kmax) +
-          ARRAY_3D(x, i, j, k-1, imax, jmax, kmax) +
-          ARRAY_3D(x, i, j, k+1, imax, jmax, kmax) +
-          ARRAY_3D(x, i, j+1, k, imax, jmax, kmax) +
-          ARRAY_3D(x, i+1, j, k, imax, jmax, kmax) );
+  int64_t i, j, k, jb;
+  for(jb = 1; jb < jmax; jb += JBLOCK) {
+#pragma omp for schedule(static)
+    for(i = 1; i < imax-1; i++) {
+      for(j = jb; j < jb + JBLOCK - 1; j++) {
+        for(k = 1; k < kmax-1; k++) {
+          ARRAY_2D(y, j, jmax, k, kmax) = 
+            scale * ( ARRAY_3D(x, i-1, j, k, imax, jmax, kmax) +
+            ARRAY_3D(x, i, j-1, k, imax, jmax, kmax) +
+            ARRAY_3D(x, i, j, k-1, imax, jmax, kmax) +
+            ARRAY_3D(x, i, j, k+1, imax, jmax, kmax) +
+            ARRAY_3D(x, i, j+1, k, imax, jmax, kmax) +
+            ARRAY_3D(x, i+1, j, k, imax, jmax, kmax) );
+        }
       }
     }
   }
