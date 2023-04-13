@@ -81,4 +81,6 @@ void pe_jacobi2d_blocking(double *y, double *x, int64_t jmax,
 		int64_t kmax, double scale);
 void pe_jacobi3d(double *y, double *x, int64_t imax, int64_t jmax,
 		int64_t kmax, double scale);
+void pe_jacobi3d_iparallel(double *y, double *x, int64_t imax, int64_t jmax, 
+  int64_t kmax, double scale);
 #endif
