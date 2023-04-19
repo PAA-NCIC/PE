@@ -28,6 +28,9 @@ void cpufp_kernel_x86_avx_vnni_int16(int64_t);
 void pe_kernel_x86_avx512_vector_copy(int64_t, void *, void *, void *);
 }
 
+// void pe_kernel_x86_avx512_vector_copy(int64_t, void *, void *, void *) {
+    
+// }
 static void parse_thread_pool(char *sets,
     vector<int> &set_of_threads)
 {
@@ -155,7 +158,7 @@ int main(int argc, char *argv[])
     parse_thread_pool(argv[1] + 14, set_of_threads);
 
     register_isa();
-    cpubm_do_bench(set_of_threads);
+    pe_bench(set_of_threads);
 
     return 0;
 }

@@ -18,7 +18,7 @@ void reg_new_mem_bench(std::string isa,
     int64_t data_volume_per_loop,
     void (*bench)(int64_t, void*, void*, void*));
     
-void cpubm_do_bench(std::vector<int> &set_of_threads);
+void pe_bench(std::vector<int> &set_of_threads);
 
 #endif
 

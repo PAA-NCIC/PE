@@ -1,6 +1,7 @@
 #include "table.hpp"
 #include "smtl.hpp"
 #include "cpubm_x86.hpp"
+#include "benchtypes.hpp"
 
 #include <cstdint>
 #include <ctime>
@@ -9,35 +10,15 @@
 #include <iomanip>
 using namespace std;
 
+
+
+
 static double get_time(struct timespec *start,
 	struct timespec *end)
 {
 	return end->tv_sec - start->tv_sec +
 		(end->tv_nsec - start->tv_nsec) * 1e-9;
 }
-
-typedef struct
-{
-    std::string isa;
-    std::string type;
-    std::string dim;
-    int64_t num_loops;
-    int64_t flops_per_loop;
-    void (*bench)(int64_t);
-} cpu_fp_x86;
-
-typedef struct
-{
-    std::string isa;
-    std::string type;
-    std::string dim;
-    int64_t num_loops;
-    int64_t data_volum_per_loop;
-    void *src1;             
-    void *src2;     
-    void *src3;
-    void (*bench)(int64_t, void *, void *, void *);
-} cpu_mem_x86;
 
 static vector<cpu_fp_x86> fp_bench_list;
 static vector<cpu_mem_x86> mem_bench_list;
@@ -66,7 +47,6 @@ static void thread_bench_fp(void *params)
     bm->bench(bm->num_loops);
 }
 
-
 void reg_new_mem_bench(std::string isa,
     std::string type,
     std::string dim,
@@ -80,92 +60,103 @@ void reg_new_mem_bench(std::string isa,
     mem_bench_item.type = type;
     mem_bench_item.num_loops = num_loops;
     mem_bench_item.data_volum_per_loop = data_volume_per_loop;
+    mem_bench_item.bench = bench;
     mem_bench_list.push_back(mem_bench_item);
 }
 
 static void thread_bench_mem(void *params)
 {
     cpu_mem_x86 *bm = (cpu_mem_x86 *)params;
-    bm->bench(bm->num_loops, bm->src1, bm->src2, bm->src3);
+    bm->bench(bm->num_loops, nullptr, nullptr, nullptr);
 }
 
-static void pe_execute_fp(smtl_handle sh,
-    cpu_fp_x86 &item,
+static void pe_execute_bench(smtl_handle sh,
+    BENCH_TYPE bench_type,
+    void* params,
     Table &table)
 {
     struct timespec start, end;
     double time_used, perf;
-
     int i;
     int num_threads = smtl_num_threads(sh);
+    switch (bench_type) {
+        case PEAK_FP: {
+            cpu_fp_x86 *item = (cpu_fp_x86 *)params;
+            // warm up
+            for (i = 0; i < num_threads; i++)
+            {
+                smtl_add_task(sh, thread_bench_fp, params);
+            }
+            smtl_begin_tasks(sh);
+            smtl_wait_tasks_finished(sh);
 
-	// warm up
-	for (i = 0; i < num_threads; i++)
-	{
-		smtl_add_task(sh, thread_bench_fp, (void*)&item);
-	}
-	smtl_begin_tasks(sh);
-	smtl_wait_tasks_finished(sh);
+            clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+            for (i = 0; i < num_threads; i++)
+            {
+                smtl_add_task(sh, thread_bench_fp, params);
+            }
+            smtl_begin_tasks(sh);
+            smtl_wait_tasks_finished(sh);
+            clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
-	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-	for (i = 0; i < num_threads; i++)
-	{
-		smtl_add_task(sh, thread_bench_fp, (void*)&item);
-	}
-	smtl_begin_tasks(sh);
-	smtl_wait_tasks_finished(sh);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+            time_used = get_time(&start, &end);
 
-	time_used = get_time(&start, &end);
-	perf = item.num_loops * item.flops_per_loop * num_threads /
-        time_used * 1e-9;
-    
-    stringstream ss;
-    ss << std::setprecision(5) << perf << " " << item.dim;
+            perf = item->num_loops * item->flops_per_loop * num_threads /
+                time_used * 1e-9;
+            
+            stringstream ss;
+            ss << std::setprecision(5) << perf << " " << item->dim;
+            vector<string> cont;
+            cont.resize(3);
+            cont[0] = item->isa;
+            cont[1] = item->type;
+            cont[2] = ss.str();
+            table.addOneItem(cont);
+            break;
+        }
+        case PEAK_MEM: {
+            cpu_mem_x86 *item = (cpu_mem_x86 *)params;
+            // warm up
+            for (i = 0; i < num_threads; i++)
+            {
+                smtl_add_task(sh, thread_bench_mem, params);
+            }
+            smtl_begin_tasks(sh);
+            smtl_wait_tasks_finished(sh);
 
-    vector<string> cont;
-    cont.resize(3);
-    cont[0] = item.isa;
-    cont[1] = item.type;
-    cont[2] = ss.str();
-    table.addOneItem(cont);
+            clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+            for (i = 0; i < num_threads; i++)
+            {
+                smtl_add_task(sh, thread_bench_mem, params);
+            }
+            smtl_begin_tasks(sh);
+            smtl_wait_tasks_finished(sh);
+            clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+
+            time_used = get_time(&start, &end);
+
+            perf = item->num_loops * item->data_volum_per_loop * num_threads; ///
+               // time_used * 1e-9;
+            
+            stringstream ss;
+            ss << std::setprecision(5) << perf << " " << item->dim;
+            vector<string> cont;
+            cont.resize(3);
+            cont[0] = item->isa;
+            cont[1] = item->type;
+            cont[2] = ss.str();
+            table.addOneItem(cont);
+            break;
+        }
+        break;
+        case CUSTOM:
+        break;
+    }
+
+	
 }
 
-static void pe_execute_mem(smtl_handle sh,
-    cpu_mem_x86 &item,
-    Table &table)
-{
-    struct timespec start, end;
-    double time_used, perf;
-
-    int i;
-    int num_threads = smtl_num_threads(sh);
-
-	clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-	for (i = 0; i < num_threads; i++)
-	{
-		smtl_add_task(sh, thread_bench_mem, (void*)&item);
-	}
-	smtl_begin_tasks(sh);
-	smtl_wait_tasks_finished(sh);
-	clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-
-	time_used = get_time(&start, &end);
-	perf = item.num_loops * item.data_volum_per_loop * num_threads /
-        time_used * 1e-9;
-    
-    stringstream ss;
-    ss << std::setprecision(5) << perf << " " << item.dim;
-
-    vector<string> cont;
-    cont.resize(3);
-    cont[0] = item.isa;
-    cont[1] = item.type;
-    cont[2] = ss.str();
-    table.addOneItem(cont);
-}
-
-void cpubm_do_bench(std::vector<int> &set_of_threads)
+void pe_bench(std::vector<int> &set_of_threads)
 {
     int i;
 
@@ -197,7 +188,7 @@ void cpubm_do_bench(std::vector<int> &set_of_threads)
     // traverse fp bench list
     for (i = 0; i < fp_bench_list.size(); i++)
     {
-        pe_execute_fp(sh, fp_bench_list[i], table);
+        pe_execute_bench(sh, PEAK_FP, &fp_bench_list[i], table);
     }
     table.print();
 
@@ -209,7 +200,7 @@ void cpubm_do_bench(std::vector<int> &set_of_threads)
     table2.addOneItem(ti);
     // traverse mem bench list
     for(i = 0; i < mem_bench_list.size(); i++) {
-        pe_execute_mem(sh, mem_bench_list[i], table2);
+        pe_execute_bench(sh, PEAK_MEM, &mem_bench_list[i], table2);
     }
     table2.print();
     

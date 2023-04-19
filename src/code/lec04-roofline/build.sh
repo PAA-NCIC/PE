@@ -24,8 +24,10 @@ then
   compile_commands=${compile_commands}"g++ -c asm/cpufp_kernel_x86_avx512f.S;"
   link_sources=${link_sources}" cpufp_kernel_x86_avx512f.o"
   #mem
-  compile_commands=${compile_commands}"g++ -c asm/pe_kernel_x86_avx512_vector_copy.S;"
-  link_sources=${link_sources}" pe_kernel_x86_avx512_vector_copy.o"
+  #compile_commands=${compile_commands}"g++ -c asm/pe_kernel_x86_avx512_vector_copy.cpp;"
+  #link_sources=${link_sources}" pe_kernel_x86_avx512_vector_copy.o"
+  compile_commands=${compile_commands}"g++ -c asm/vector_copy.S;"
+  link_sources=${link_sources}" vector_copy.o"
 fi
 
 #avx512_vnni instruction set check
@@ -53,7 +55,7 @@ echo ${link_sources}
 eval ${link_sources}
 
 #clean
-rm *.o
+#rm *.o
 
 #for file in `ls .`; do
 #  echo $file
