@@ -24,6 +24,8 @@ void cpufp_kernel_x86_avx512_vnni_int16(int64_t);
 
 void cpufp_kernel_x86_avx_vnni_int8(int64_t);
 void cpufp_kernel_x86_avx_vnni_int16(int64_t);
+
+void pe_kernel_x86_avx512_vector_copy(int64_t, void *, void *, void *);
 }
 
 static void parse_thread_pool(char *sets,
@@ -97,28 +99,33 @@ static void parse_thread_pool(char *sets,
 static void register_isa()
 {
 #ifdef AVX512_VNNI
-    reg_new_isa("AVX512_VNNI", "INT8", "GOPS",
+    reg_new_fp_bench("AVX512_VNNI", "INT8", "GFLOPS",
         0x20000000LL, 1280LL,
         cpufp_kernel_x86_avx512_vnni_int8);
-    reg_new_isa("AVX512_VNNI", "INT16", "GOPS",
+    reg_new_fp_bench("AVX512_VNNI", "INT16", "GFLOPS",
         0x20000000LL, 640LL,
         cpufp_kernel_x86_avx512_vnni_int16);
 #endif
 #ifdef AVX512
-    reg_new_isa("AVX512F", "FP32", "GFLOPS",
+    reg_new_fp_bench("AVX512F", "FP32", "GFLOPS",
         0x20000000LL, 320LL,
         cpufp_kernel_x86_avx512f_fp32);
-    reg_new_isa("AVX512F", "FP64", "GFLOPS",
+    reg_new_fp_bench("AVX512F", "FP64", "GFLOPS",
         0x20000000LL, 160LL,
         cpufp_kernel_x86_avx512f_fp64);
 #endif
 #ifdef AVX
-    reg_new_isa("AVX", "FP32", "GFLOPS",
+    reg_new_fp_bench("AVX", "FP32", "GFLOPS",
         0x40000000LL, 96LL,
         cpufp_kernel_x86_avx_fp32);
-    reg_new_isa("AVX", "FP64", "GFLOPS",
+    reg_new_fp_bench("AVX", "FP64", "GFLOPS",
         0x40000000LL, 48LL,
         cpufp_kernel_x86_avx_fp64);
+#endif
+#ifdef AVX512
+    reg_new_mem_bench("AVX512", "A[i]=B[i]", "GB/s",
+    0x20000000LL, 1024LL,
+    pe_kernel_x86_avx512_vector_copy);
 #endif
 }
 

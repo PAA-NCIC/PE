@@ -11,27 +11,30 @@ inst_flags=""
 if [[ $ins_set =~ "avx2" ]];
 then
   echo "avx2 supported"
+  inst_flags=${inst_flags}" -DAVX" 
   compile_commands=${compile_commands}"g++ -c asm/cpufp_kernel_x86_avx.S;"
   link_sources=${link_sources}" cpufp_kernel_x86_avx.o"
-  inst_flags=${inst_flags}" -DAVX" 
 fi
 
 #avx512 instruction set check
 if [[ $ins_set =~ "avx512" ]];
 then
   echo "avx512 supported"
+  inst_flags=${inst_flags}" -DAVX512" 
   compile_commands=${compile_commands}"g++ -c asm/cpufp_kernel_x86_avx512f.S;"
   link_sources=${link_sources}" cpufp_kernel_x86_avx512f.o"
-  inst_flags=${inst_flags}" -DAVX512" 
+  #mem
+  compile_commands=${compile_commands}"g++ -c asm/pe_kernel_x86_avx512_vector_copy.S;"
+  link_sources=${link_sources}" pe_kernel_x86_avx512_vector_copy.o"
 fi
 
 #avx512_vnni instruction set check
 if [[ $ins_set =~ "avx512_vnni" ]];
 then
   echo "avx512vnni supported"
+  inst_flags=${inst_flags}" -DAVX512_VNNI" 
   compile_commands=${compile_commands}"g++ -c asm/cpufp_kernel_x86_avx512_vnni.S;"
   link_sources=${link_sources}" cpufp_kernel_x86_avx512_vnni.o"
-  inst_flags=${inst_flags}" -DAVX512_VNNI" 
 fi
 
 #avx_vnni instruction set check
