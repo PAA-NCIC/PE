@@ -5,7 +5,7 @@
 int main() {
   int64_t m, n, k, lda, ldb, ldc;
   struct timespec start, end;
-  double time_used, perf;
+  double time_used, flops, perf;
   //for simple
   m = n = k = lda = ldb = ldc = 1024; 
   double *A, *B, *C, *ref;
@@ -25,5 +25,11 @@ int main() {
   //call
   pe_dgemm(m, n, k, A, lda, B, ldb, C, ldc);
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+  flops = 2 * m * n * k;
+  time_used = get_time(&start, &end);
+  perf = flops / time_used * 1e-9;
+  cout << "flops: " << flops << endl;
+  cout << "time : " << time_used << endl;
+  cout << "perf:  " << perf << endl;
   return 0;
 }
