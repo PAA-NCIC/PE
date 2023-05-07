@@ -1,5 +1,5 @@
 CXX         := g++
-CXXFLAGS    := -O3 -march=native -D __AVX__
+CXXFLAGS    := -O3 -march=native -D __AVX512F__
 LDFLAGS     := -lm
 
 
