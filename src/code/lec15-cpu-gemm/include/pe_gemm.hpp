@@ -12,8 +12,9 @@ void pe_gemm(int64_t M, int64_t N, int64_t K,
   for(i = 0; i < M; i++) {
     for(j = 0; j < N; j++) {
       for(k = 0; k < K; k++) {
-        COL_MAJOR(C, i, j, M, N) = 
-          COL_MAJOR(A, i, M, k, K) * COL_MAJOR(B, j, K, k, N);
+        //col major
+        //c[i][j] += A[i][k] * b[k][j]
+        //C[i + j * ldc] += A[i + k * lda] * B[k + j *ldb];
       }
     }
   }
