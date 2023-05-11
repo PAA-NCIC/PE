@@ -1,5 +1,5 @@
-OLD  := MMult1
-NEW  := MMult2
+OLD  := MMult_8x1_7
+NEW  := MMult_8x1_8
 #
 # sample makefile
 #
@@ -36,7 +36,7 @@ run:
 	export OMP_NUM_THREADS=1
 	export GOTO_NUM_THREADS=1
 	echo "version = '$(NEW)';" > output_$(NEW).m
-	./test_MMult.x >> output_$(NEW).m
+	./test_MMult.x | tee -a output_$(NEW).m
 	cp output_$(OLD).m output_old.m
 	cp output_$(NEW).m output_new.m
 
