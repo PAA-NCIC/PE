@@ -37,11 +37,12 @@ void MY_MMult( int m, int n, int k, double *a, int lda,
 void InnerKernel( int m, int n, int k, double *a, int lda,  
                                        double *b, int ldb, 
                                        double *c, int ldc) {
-  double packedA[m * k];
+  double __attribute__((aligned(64))) packedA[m * k];
 	for(int i = 0; i < m; i+=8) {
     for(int j = 0; j < n; j+=8) {
       PackMatrixA( k, &A( i, 0 ), lda, &packedA[ i*k ] );
-      AddDot8x8(k, &A(i,0), lda, &B(0,j), ldb, &C(i,j), ldc);
+      AddDot8x8(k, &packedA[i * k], 8, &B(0,j), ldb, &C(i,j), ldc);
+      //AddDot8x8(k, &A(i, 0), lda, &B(0,j), ldb, &C(i,j), ldc);
     }
   }
 }
@@ -49,14 +50,13 @@ void InnerKernel( int m, int n, int k, double *a, int lda,
 void PackMatrixA( int k, double *a, int lda, double *a_to) {
   int j;
   for( j=0; j<k; j++){  /* loop over columns of A */
-    double *a_ij_pntr = &A( 0, j );
-
-    *a_to++ = *a_ij_pntr;
-    *a_to++ = *(a_ij_pntr+1);
-    *a_to++ = *(a_ij_pntr+2);
-    *a_to++ = *(a_ij_pntr+3);
+    //double *a_ij_pntr = &A( 0, j );
+    __m512d tmp = _mm512_load_pd(&A( 0, j ));
+    _mm512_store_pd(a_to, tmp);
+    a_to += 8;
   }
 }
+
 void AddDot8x8( int k, double *a, int lda,  double *b, int ldb, double *c, int ldc )
 {
   __m512d a_reg;
