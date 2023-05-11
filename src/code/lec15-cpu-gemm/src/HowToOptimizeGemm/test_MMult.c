@@ -10,7 +10,14 @@ void copy_matrix(int, int, double *, int, double *, int );
 void random_matrix(int, int, double *, int);
 double compare_matrices( int, int, double *, int, double *, int );
 
+
 double dclock();
+
+
+//align the memory address to 64bytes for futher simd optimization
+const int64_t ALIGNMENT = 64;
+#define ALIGN(ptr) (double *)(((int64_t)(ptr) +ALIGNMENT) & (~(ALIGNMENT - 1)))
+//#define ALIGN(ptr) ptr
 
 int main()
 {
@@ -44,41 +51,42 @@ int main()
     /* Allocate space for the matrices */
     /* Note: I create an extra column in A to make sure that
        prefetching beyond the matrix does not cause a segfault */
-    a = ( double * ) malloc( lda * (k+1) * sizeof( double ) );  
-    b = ( double * ) malloc( ldb * n * sizeof( double ) );
-    c = ( double * ) malloc( ldc * n * sizeof( double ) );
-    cold = ( double * ) malloc( ldc * n * sizeof( double ) );
-    cref = ( double * ) malloc( ldc * n * sizeof( double ) );
-
+    a = ( double * ) malloc( ALIGNMENT + lda * (k+1) * sizeof( double ) );  
+    b = ( double * ) malloc( ALIGNMENT + ldb * n * sizeof( double ) );
+    c = ( double * ) malloc( ALIGNMENT + ldc * n * sizeof( double ) );
+    cold = ( double * ) malloc( ALIGNMENT + ldc * n * sizeof( double ) );
+    cref = ( double * ) malloc( ALIGNMENT + ldc * n * sizeof( double ) );
+    //printf("%p, %p, %p, %p, %p\n", a, b, c, cold, cref);
+    //printf("%p, %p, %p, %p, %p\n", ALIGN(a), ALIGN(b), ALIGN(c), ALIGN(cold), ALIGN(cref));
     /* Generate random matrices A, B, Cold */
-    random_matrix( m, k, a, lda );
-    random_matrix( k, n, b, ldb );
-    random_matrix( m, n, cold, ldc );
+    random_matrix( m, k, ALIGN(a), lda );
+    random_matrix( k, n, ALIGN(b), ldb );
+    random_matrix( m, n, ALIGN(cold), ldc );
 
-    copy_matrix( m, n, cold, ldc, cref, ldc );
+    copy_matrix( m, n, ALIGN(cold), ldc, ALIGN(cref), ldc );
 
     /* Run the reference implementation so the answers can be compared */
 
-    REF_MMult( m, n, k, a, lda, b, ldb, cref, ldc );
+    REF_MMult( m, n, k, ALIGN(a), lda, ALIGN(b), ldb, ALIGN(cref), ldc );
 
     /* Time the "optimized" implementation */
     for ( rep=0; rep<NREPEATS; rep++ ){
-      copy_matrix( m, n, cold, ldc, c, ldc );
+      copy_matrix( m, n, ALIGN(cold), ldc, ALIGN(c), ldc );
 
-      /* Time your implementation */
+      // Time your implementation 
       dtime = dclock();
 
-      MY_MMult( m, n, k, a, lda, b, ldb, c, ldc );
+      MY_MMult( m, n, k, ALIGN(a), lda, ALIGN(b), ldb, ALIGN(c), ldc );
       
       dtime = dclock() - dtime;
 
       if ( rep==0 )
-	dtime_best = dtime;
+	      dtime_best = dtime;
       else
-	dtime_best = ( dtime < dtime_best ? dtime : dtime_best );
+	      dtime_best = ( dtime < dtime_best ? dtime : dtime_best );
     }
 
-    diff = compare_matrices( m, n, c, ldc, cref, ldc );
+    diff = compare_matrices( m, n, ALIGN(c), ldc, ALIGN(cref), ldc );
 
     printf( "%d %le %le \n", p, gflops / dtime_best, diff );
     fflush( stdout );
