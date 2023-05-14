@@ -46,14 +46,7 @@ void AddDot8x8( int k, double *a, int lda,  double *b, int ldb, double *c, int l
 
   __m512d a_reg, b_reg;
   __m512d c_reg = _mm512_load_pd(&C( 0, 0 ));  //C(0:7,0) 
-  //__m512d c_reg = _mm512_load_pd(&C( 0, 1 ));  //C(0:7,1)
-  //__m512d c_reg = _mm512_load_pd(&C( 0, 2 ));  //C(0:7,2)
-  //__m512d c_reg = _mm512_load_pd(&C( 0, 3 ));  //C(0:7,3)
-  //__m512d c_reg = _mm512_load_pd(&C( 0, 4 ));  //C(0:7,4)
-  //__m512d c_reg = _mm512_load_pd(&C( 0, 5 ));  //C(0:7,5)
-  //__m512d c_reg = _mm512_load_pd(&C( 0, 6 ));  //C(0:7,6)
-  //__m512d c_reg = _mm512_load_pd(&C( 0, 7 ));  //C(0:7,7)
-  //UNROLL 4
+  //UNROLL 8
   for ( p=0; p<k; p+=8 ){
     b_reg = _mm512_set1_pd(B( p, 0 ));
     a_reg = _mm512_load_pd(&A( 0, p ));

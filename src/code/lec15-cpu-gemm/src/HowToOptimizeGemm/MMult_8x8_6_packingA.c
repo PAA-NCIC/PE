@@ -22,7 +22,7 @@ void MY_MMult( int m, int n, int k, double *a, int lda,
                                     double *b, int ldb,
                                     double *c, int ldc )
 {
-  int i, j, p, pb, ib;
+  int i, p, pb, ib;
 
   for(p = 0; p < k; p += kc){
     pb = min(k-p, kc);
@@ -46,6 +46,21 @@ void InnerKernel( int m, int n, int k, double *a, int lda,
     }
   }
 }
+
+// void PackMatrixA( int k, double *a, int lda, double *a_to) {
+//   int j;
+//   for( j=0; j<k; j++){  /* loop over columns of A */
+//     double *a_ij_pntr = &A( 0, j );
+//     *a_to++ = *a_ij_pntr++;
+//     *a_to++ = *a_ij_pntr++;
+//     *a_to++ = *a_ij_pntr++;
+//     *a_to++ = *a_ij_pntr++;
+//     *a_to++ = *a_ij_pntr++;
+//     *a_to++ = *a_ij_pntr++;
+//     *a_to++ = *a_ij_pntr++;
+//     *a_to++ = *a_ij_pntr++;
+//   }
+// }
 
 void PackMatrixA( int k, double *a, int lda, double *a_to) {
   int j;

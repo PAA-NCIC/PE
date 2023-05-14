@@ -40,14 +40,7 @@ void AddDot8x1( int k, double *a, int lda,  double *b, int ldb, double *c, int l
 
      In this version, we merge the four loops, computing four inner
      products simultaneously. */
-
-  int p;
-
-  //  AddDot( k, &A( 0, 0 ), lda, &B( 0, 0 ), &C( 0, 0 ) );
-  //  AddDot( k, &A( 0, 0 ), lda, &B( 0, 1 ), &C( 0, 1 ) );
-  //  AddDot( k, &A( 0, 0 ), lda, &B( 0, 2 ), &C( 0, 2 ) );
-  //  AddDot( k, &A( 0, 0 ), lda, &B( 0, 3 ), &C( 0, 3 ) );
-  for ( p=0; p<k; p++ ){
+  for (int p=0; p<k; p++ ){
     C( 0, 0 ) += A( 0, p ) * B( p, 0 );     
     C( 1, 0 ) += A( 1, p ) * B( p, 0 );     
     C( 2, 0 ) += A( 2, p ) * B( p, 0 );     
