@@ -8,14 +8,14 @@ template <typename T>
 __global__  
 void pe_gemm_v0(int M, int N, int K, T alpha, T* A, T* B, T beta, T* C){
     int lda = M, ldb = K, ldc = M;
-    int tid_x = threadIdx.x, tid_y = threadIdx.y;
-    int bid_x = blockIdx.x, bid_y = blockIdx.y;
-    A = &A((bid_x<<5),0);
-    B = &B(0,(bid_y<<5));
-    C = &C((bid_x<<5),(bid_y<<5));
+    int tx = threadIdx.x, ty = threadIdx.y;
+    int bx = blockIdx.x, by = blockIdx.y;
+    A = &A((bx<<5),0);
+    B = &B(0,(by<<5));
+    C = &C((bx<<5),(by<<5));
     T tmp=0.;
     for (int kk = 0; kk < K; kk++){
-        tmp += A(tid_x, kk) * B(kk, tid_y);
+        tmp += A(tx, kk) * B(kk, ty);
     }
-    C(tid_x,tid_y) = alpha * tmp + beta*C(tid_x,tid_y);
+    C(tx,ty) = alpha * tmp + beta*C(tx,ty);
 }

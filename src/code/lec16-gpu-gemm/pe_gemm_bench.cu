@@ -11,12 +11,12 @@
 #define MYSGEMM mysgemm_naive // select the kernel here
 typedef void (*pe_dgemm_kernel)(int, int, int, pe_f64, pe_f64 *, pe_f64 *, pe_f64, pe_f64 *);
 const int N_KERNELS = 10;
-const int N_CASES = 4;
+const int N_CASES = 10;
 pe_dgemm_kernel PE_DGEMM_KERNELS[N_KERNELS] = {
   pe_dgemm_v0,
-  pe_dgemm_v0,
-  pe_dgemm_v0,
-  pe_dgemm_v0,
+  pe_dgemm_v1,
+  pe_dgemm_v2,
+  pe_dgemm_v3,
   pe_dgemm_v0,
   pe_dgemm_v0,
   pe_dgemm_v0,
@@ -40,7 +40,7 @@ int main(int argc, char **argv){
     //1024-10240-256
     int SIZE[N_CASES];
     for (int i=0;i<N_CASES;i++) 
-      SIZE[i]=(i+4)<<8;
+      SIZE[i]=(i+2)<<9;
     int kernel_id=atoi(argv[1]);
     if (kernel_id<0||kernel_id>11) {
         printf("Please enter a valid kernel number (0-11).\n");

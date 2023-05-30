@@ -1,4 +1,4 @@
-BINARY_NAME = pe_dgemm_gpu
+BINARY_NAME = bench_dgemm
 CUDA_PATH   = /usr/local/cuda-11.7
 CC			= $(CUDA_PATH)/bin/nvcc
 CFLAGS		= -O3 -std=c++11
@@ -7,14 +7,14 @@ INCFLAGS	= -I$(CUDA_PATH)/include  -I./include/common/inc
 
 
 SRC = $(wildcard ./*.cu)  
+KERNEL_TEMPLATES = $(wildcard ./include/*.cuh)
 KERNELS = $(wildcard ./kernels/*.cu)
+DEPENS = $(SRC) $(KERNELS) $(KERNEL_TEMPLATES)
 
-OBJ = $(patsubst %.cu, %.o, $(SRC))
-KERNEL_OBJS = $(patsubst %.cu, %.o, $(KERNELS))
 
 build : $(BINARY_NAME)
 
-$(BINARY_NAME): $(SRC) $(KERNELS)
+$(BINARY_NAME): $(DEPENS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(INCFLAGS) $(KERNELS) $(SRC) -o $(BINARY_NAME)
 
 
