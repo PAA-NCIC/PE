@@ -18,7 +18,7 @@ pe_dgemm_kernel PE_DGEMM_KERNELS[N_KERNELS] = {
   pe_dgemm_v2,
   pe_dgemm_v3,
   pe_dgemm_v4,
-  pe_dgemm_v0,
+  pe_dgemm_v5,
   pe_dgemm_v0,
   pe_dgemm_v0,
   pe_dgemm_v0,
