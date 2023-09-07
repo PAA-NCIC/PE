@@ -86,10 +86,14 @@ int main()
   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
   ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
-  for (int i = 0; i < n; i++) {
-    x = a * x + c;
+asm volatile ("# axpy simd begin");
+  for (int i = 0; i < n / 8; i++) {
+    #pragma unroll 8
+    for(int j = 0; j < 8; j++) {
+      x = a * x + c;
+    }
   }
-
+asm volatile ("# axpy simd end");
   ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
   end_cycle = rdtsc();
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);

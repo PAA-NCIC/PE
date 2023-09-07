@@ -28,8 +28,26 @@ double get_time(struct timespec *start,
   return end->tv_sec - start->tv_sec +
     (end->tv_nsec - start->tv_nsec) * 1e-9;
 }
+#if __AVX512F__
+  const int vwidth = 64;
+#elif __AVX__
+  const int vwidth = 32;
+#endif
+  const int valign = sizeof(float);
+  typedef float floatv __attribute__((vector_size(vwidth), aligned(valign)));
+  
+const int n = 100000000;
+const uint32_t VLEN = 16;
 
-const int n = 1000000;
+template<uint32_t nv> 
+void axpy_simd(floatv *X, floatv a, floatv c){
+  for(uint64_t i = 0; i < n; i++) {
+#pragma unroll nv
+    for(uint32_t j = 0; j < nv; j++) {
+      X[j] = a * X[j] + c;
+    }
+  }
+}
 
 static long perf_event_open(struct perf_event_attr *hw_event, 
   pid_t pid, int cpu, int group_fd, unsigned long flags) {
@@ -41,6 +59,7 @@ static long perf_event_open(struct perf_event_attr *hw_event,
 
 int main() 
 {
+  const unsigned int unroll = 8;
   struct perf_event_attr pe;
   int fd;
   uint64_t cpu_clocks;
@@ -68,16 +87,18 @@ int main()
   typedef float floatv __attribute__((vector_size(vwidth), aligned(valign)));
   const int L = sizeof(floatv) / sizeof(float);
   cout << "SIMD width: " << L << endl;
-  floatv a, x, c;
+  floatv a, x[16], c;
+
   for(int i = 0; i < L; i++)
-    a[i] = x[i] = c[i] = 1.0;
- 
+    a[i] = c[i] = 1.0;
+  for(int i = 0; i < 16; i++) {
+    x[i] = a;
+  }
+  
   uint64_t start_cycle, end_cycle;
   struct timespec start, end;
   //warm up
-  for (int i = 0; i < n; i++) {
-    x = a * x + c;
-  }
+  axpy_simd<unroll>(x, a, c);
   //time
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
   //cpu ref clocks
@@ -86,16 +107,14 @@ int main()
   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
   ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
 
-  for (int i = 0; i < n; i++) {
-    x = a * x + c;
-  }
+  axpy_simd<unroll>(x, a, c);
 
   ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
   end_cycle = rdtsc();
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
   double used_time = get_time(&start, &end);
   uint64_t used_cycles = end_cycle - start_cycle;
-  double flops = 2.0 * L * n;
+  double flops = 2.0 * L * n * unroll;
   read(fd, &cpu_clocks, sizeof(cpu_clocks));
 
   //print out
@@ -107,7 +126,7 @@ int main()
   cout << "iter per core cycle:  " << 1.0 * cpu_clocks / n << endl;
   //cout << "Ghz " << 1.0 * used_cycles /cpu_clocks << endl;
   cout << "Achieve flops:        " << flops / used_time  << endl;
-  
+
   //in case that compiler optimized
-  return (int)x[0];
+  return (int)x[0][0];
 }

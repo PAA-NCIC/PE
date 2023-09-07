@@ -13,6 +13,8 @@
 #include <errno.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <iomanip>
+
 using namespace std;
 
 //#define __AVX__
@@ -30,6 +32,12 @@ double get_time(struct timespec *start,
 }
 
 const int n = 1000000;
+#if __AVX512F__
+  const int vwidth = 64;
+#elif __AVX__
+  const int vwidth = 32;
+#endif
+  typedef float floatv __attribute__((vector_size(vwidth), aligned(4)));
 
 static long perf_event_open(struct perf_event_attr *hw_event, 
   pid_t pid, int cpu, int group_fd, unsigned long flags) {
@@ -39,11 +47,23 @@ static long perf_event_open(struct perf_event_attr *hw_event,
   return ret;
 }
 
+//jb = 4, for example
+void axpy_simd(floatv *X, floatv a, floatv c, long m){
+  for(uint64_t i = 0; i < n; i += 4) {
+    for(uint32_t j = 0; j < m; j++) {
+      for(uint32_t ii = 0; ii <  4; ii++) {
+        X[j] = a * X[j] + c;
+      }
+    }
+  }
+}
+
+
+
 int main() 
 {
   struct perf_event_attr pe;
   int fd;
-  uint64_t cpu_clocks;
   char buf[4096];
   memset(&pe, 0, sizeof(pe));
   pe.type = PERF_TYPE_HARDWARE;
@@ -58,56 +78,40 @@ int main()
     exit(EXIT_FAILURE);
   }
 
-
-#if __AVX512F__
-  const int vwidth = 64;
-#elif __AVX__
-  const int vwidth = 32;
-#endif
-  const int valign = sizeof(float);
-  typedef float floatv __attribute__((vector_size(vwidth), aligned(valign)));
   const int L = sizeof(floatv) / sizeof(float);
   cout << "SIMD width: " << L << endl;
-  floatv a, x, c;
+  floatv a, c, x[16];
   for(int i = 0; i < L; i++)
-    a[i] = x[i] = c[i] = 1.0;
- 
+    a[i] = c[i]= 1.0;
+  for(int i = 0; i < 16; i++)
+    x[i] = a;
+
   uint64_t start_cycle, end_cycle;
   struct timespec start, end;
-  //warm up
-  for (int i = 0; i < n; i++) {
-    x = a * x + c;
-  }
-  //time
-  clock_gettime(CLOCK_MONOTONIC_RAW, &start);
-  //cpu ref clocks
-  start_cycle = rdtsc();
-  //cpu core clocks
-  ioctl(fd, PERF_EVENT_IOC_RESET, 0);
-  ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
-
-  for (int i = 0; i < n; i++) {
-    x = a * x + c;
-  }
-
-  ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
-  end_cycle = rdtsc();
-  clock_gettime(CLOCK_MONOTONIC_RAW, &end);
-  double used_time = get_time(&start, &end);
-  uint64_t used_cycles = end_cycle - start_cycle;
-  double flops = 2.0 * L * n;
-  read(fd, &cpu_clocks, sizeof(cpu_clocks));
-
-  //print out
-  cout << "Flops:                " << flops << endl;
-  cout << "cpu ref cycles:       " << used_cycles << endl;
-  cout << "flops per ref cycle:  " << 1.0 * flops / used_cycles << endl;
-  cout << "cpu core clocks:      " << cpu_clocks << endl;
-  cout << "flops per core cycle: " << 1.0 * flops / cpu_clocks << endl;
-  cout << "iter per core cycle:  " << 1.0 * cpu_clocks / n << endl;
-  //cout << "Ghz " << 1.0 * used_cycles /cpu_clocks << endl;
-  cout << "Achieve flops:        " << flops / used_time  << endl;
+  //header
+  cout << setw(20) << "chains," << "\t" << setw(20) << "cycles/iter," \
+  << "\t" << "flops/cycle" << endl;
   
+  for(int i = 4; i <= 16; i+=4 ) {
+    //time
+    clock_gettime(CLOCK_MONOTONIC_RAW, &start);
+    //cpu ref clocks
+    start_cycle = rdtsc();
+    //cpu core clocks
+    ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+    ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
+    axpy_simd(x, a, c, i+1);
+    ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+    end_cycle = rdtsc();
+    clock_gettime(CLOCK_MONOTONIC_RAW, &end);
+    double used_time = get_time(&start, &end);
+    uint64_t used_cycles= end_cycle - start_cycle;
+    double flops = 2.0 * L * n * (i);
+    uint64_t cpu_clocks;
+    read(fd, &cpu_clocks, sizeof(cpu_clocks));
+    cout << setw(20) << i + 1 << ",\t" << setw(20) << 1.0 * cpu_clocks / n \
+    << ",\t" << flops / cpu_clocks << endl;
+  }  
   //in case that compiler optimized
-  return (int)x[0];
+  return (int)x[0][0];
 }
