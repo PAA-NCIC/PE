@@ -140,7 +140,9 @@ int main()
     uint64_t used_cycles= end_cycle - start_cycle;
     double flops = 2.0 * L * n * (i + 1);
     uint64_t cpu_clocks;
-    read(fd, &cpu_clocks, sizeof(cpu_clocks));
+    if(read(fd, &cpu_clocks, sizeof(cpu_clocks)) == -1) {
+    cout << "read cpu clocks error" << endl;
+    }
     cout << setw(20) << i + 1 << ",\t" << setw(20) << 1.0 * cpu_clocks / n \
     << ",\t" << flops / cpu_clocks << endl;
   }  

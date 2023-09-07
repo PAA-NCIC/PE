@@ -100,7 +100,9 @@ asm volatile ("# axpy simd end");
   double used_time = get_time(&start, &end);
   uint64_t used_cycles = end_cycle - start_cycle;
   double flops = 2.0 * L * n;
-  read(fd, &cpu_clocks, sizeof(cpu_clocks));
+  if(read(fd, &cpu_clocks, sizeof(cpu_clocks)) == -1) {
+    cout << "read cpu clocks error" << endl;
+  }
 
   //print out
   cout << "Flops:                " << flops << endl;

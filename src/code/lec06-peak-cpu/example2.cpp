@@ -99,7 +99,9 @@ int main()
   uint64_t used_cycles_1chain = end_cycle - start_cycle;
   double flops_1chain = 2.0 * L * n;
   uint64_t cpu_clocks_1chain;
-  read(fd, &cpu_clocks_1chain, sizeof(cpu_clocks_1chain));
+  if(read(fd, &cpu_clocks_1chain, sizeof(cpu_clocks_1chain)) == -1){
+    cout << "read cpu clocks error" << endl;
+  };
 
   //time
   clock_gettime(CLOCK_MONOTONIC_RAW, &start);
@@ -119,7 +121,9 @@ int main()
   uint64_t used_cycles_2chain = end_cycle - start_cycle;
   double flops_2chain = 2.0 * L * n * 2;
   uint64_t cpu_clocks_2chain;
-  read(fd, &cpu_clocks_2chain, sizeof(cpu_clocks_2chain));
+  if(read(fd, &cpu_clocks_2chain, sizeof(cpu_clocks_2chain)) == -1) {
+    cout << "read cpu clocks error" << endl;
+  }
   //print out
   cout << "                      " <<"***1chaine***" << "\t" << "***2chaine***" << endl;
   cout << "Flops:                " << setw(13) << flops_1chain \

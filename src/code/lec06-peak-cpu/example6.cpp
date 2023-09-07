@@ -100,7 +100,7 @@ int main()
     //cpu core clocks
     ioctl(fd, PERF_EVENT_IOC_RESET, 0);
     ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
-    axpy_simd(x, a, c, i+1);
+    axpy_simd(x, a, c, i);
     ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
     end_cycle = rdtsc();
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
@@ -108,8 +108,10 @@ int main()
     uint64_t used_cycles= end_cycle - start_cycle;
     double flops = 2.0 * L * n * (i);
     uint64_t cpu_clocks;
-    read(fd, &cpu_clocks, sizeof(cpu_clocks));
-    cout << setw(20) << i + 1 << ",\t" << setw(20) << 1.0 * cpu_clocks / n \
+    if(read(fd, &cpu_clocks, sizeof(cpu_clocks)) == -1) {
+       cout << "read cpu clocks error" << endl;
+    };
+    cout << setw(20) << i << ",\t" << setw(20) << 1.0 * cpu_clocks / n \
     << ",\t" << flops / cpu_clocks << endl;
   }  
   //in case that compiler optimized
