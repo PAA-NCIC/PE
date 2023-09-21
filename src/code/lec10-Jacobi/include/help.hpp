@@ -1,6 +1,7 @@
 #include<ctime>
 #include<cmath>
 #include<iostream>
+#include<omp.h>
 using namespace std;
 
 double get_time(struct timespec *start,
@@ -9,12 +10,13 @@ double get_time(struct timespec *start,
 //randomly init 2d array
 template <class T>
 void init_2d_array(T *matrix, int64_t m, int64_t n) {
-  unsigned seed = time(0);
-  srand(seed);
+  //unsigned seed = time(0);
+  //srand(seed);
+  #pragma omp for
   for(int64_t i = 0; i < m; i++) {
     for(int64_t j = 0; j < n; j++) {
-      //random numver in (0-10)
-      ARRAY_2D(matrix, i, j, m, n) = 10.0 * rand() / (RAND_MAX + 1.0);
+      //random number in (0-10)
+      ARRAY_2D(matrix, i, j, m, n) = (i + j) % 100;
     }
   }
 }

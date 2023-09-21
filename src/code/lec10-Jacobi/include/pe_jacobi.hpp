@@ -5,15 +5,17 @@
 
 template <typename T>
 void pe_jacobi2d_template(T *y, T *x, int64_t jmax, int64_t kmax,
-		T scale){
+		T scale, int64_t repeat = 1){
   int64_t j, k;
-  for(j = 1; j < jmax-1; j++) {
-    for(k = 1; k < kmax-1; k++) {
-      ARRAY_2D(y, j, jmax, k, kmax) = 
-        scale * ( ARRAY_2D(x, j - 1,k, jmax, kmax) +
-        ARRAY_2D(x, j+1, k, jmax, kmax) +
-        ARRAY_2D(x, j, k-1, jmax, kmax) +
-        ARRAY_2D(x, j, k+1, jmax, kmax) );
+  for(int r = 0; r < repeat; r++) {
+    for(j = 1; j < jmax-1; j++) {
+      for(k = 1; k < kmax-1; k++) {
+        ARRAY_2D(y, j, jmax, k, kmax) = 
+          scale * ( ARRAY_2D(x, j - 1,k, jmax, kmax) +
+          ARRAY_2D(x, j+1, k, jmax, kmax) +
+          ARRAY_2D(x, j, k-1, jmax, kmax) +
+          ARRAY_2D(x, j, k+1, jmax, kmax) );
+      }
     }
   }
 }
@@ -23,13 +25,14 @@ void pe_jacobi2d_blocking_template(T *y, T *x, int64_t jmax, int64_t kmax,
 		T scale){
   int64_t j, k, kb;
   for(kb = 1; kb < kmax - 1; kb += KBLOCK) {
-    for(j = 1; j < jmax-1; j++) {
+    for(j = 1; j < jmax - 1; j++) {
       for(k = kb; k < kb + KBLOCK; k++) {
         ARRAY_2D(y, j, jmax, k, kmax) = 
-          scale * ( ARRAY_2D(x, j - 1,k, jmax, kmax) +
-          ARRAY_2D(x, j+1, k, jmax, kmax) +
-          ARRAY_2D(x, j, k-1, jmax, kmax) + 
-	  ARRAY_2D(x, j, k+1, jmax, kmax) );
+          scale * ( 
+            ARRAY_2D(x, j-1, k, jmax, kmax) +
+            ARRAY_2D(x, j+1, k, jmax, kmax) +
+            ARRAY_2D(x, j,   k-1, jmax, kmax) + 
+	          ARRAY_2D(x, j,   k+1, jmax, kmax) );
       }
     }
   }
@@ -59,7 +62,6 @@ void pe_jacobi3d_jblocking_template(T *y, T *x, int64_t imax, int64_t jmax,
 		int64_t kmax, T scale){
   int64_t i, j, k, jb;
   for(jb = 1; jb < jmax; jb += JBLOCK) {
-#pragma omp for schedule(static)
     for(i = 1; i < imax-1; i++) {
       for(j = jb; j < jb + JBLOCK - 1; j++) {
         for(k = 1; k < kmax-1; k++) {
@@ -75,12 +77,19 @@ void pe_jacobi3d_jblocking_template(T *y, T *x, int64_t imax, int64_t jmax,
     }
   }
 }
+
 void pe_jacobi2d(double *y, double *x, int64_t jmax, int64_t kmax,
-		double scale);
-void pe_jacobi2d_blocking(double *y, double *x, int64_t jmax,
-		int64_t kmax, double scale);
+		double scale, int64_t repeat);
+void pe_jacobi2d_blocking(double *y, double *x, uint64_t jmax,
+		uint64_t kmax, double scale, unsigned int kblock);
 void pe_jacobi3d(double *y, double *x, int64_t imax, int64_t jmax,
 		int64_t kmax, double scale);
 void pe_jacobi3d_iparallel(double *y, double *x, int64_t imax, int64_t jmax, 
   int64_t kmax, double scale);
+void pe_jacobi3d_iparallel_ntstore(double *y, double *x, int64_t imax, int64_t jmax, 
+  int64_t kmax, double scale);
+
+void pe_jacobi3d_jparallel(double *y, double *x, int64_t imax, int64_t jmax, 
+  int64_t kmax, double scale); 
+
 #endif

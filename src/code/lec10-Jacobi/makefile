@@ -1,5 +1,5 @@
 CXX         := g++
-CXXFLAGS    := -O3 -Wall -I ./include
+CXXFLAGS    := -O3 -Wall -I ./include -fopenmp -g
 LDFLAGS     := -lm
 
 
@@ -10,13 +10,13 @@ KERNEL_OBJS = $(patsubst %.cpp, %.o, $(KERNELS))
 
 
 pe:$(OBJ) $(KERNEL_OBJS)
-	$(CXX) $(OBJ) $(KERNEL_OBJS) -o $@
+	$(CXX) $(OBJ) $(KERNEL_OBJS) -o $@ -fopenmp
 
 ./src/%.o: ./src/%.cpp
-	$(CXX) $(CFLAGS) -c  $< -o $@
+	$(CXX) $(CXXFLAGS) -c  $< -o $@ 
 
 ./src/kernel/%.o: ./src/kernels/%.cpp
-	$(CXX) $(CFLAGS) -c  $< -o $@
+	$(CXX) $(CXXFLAGS) -c  $< -o $@ 
 
 
 all: 
