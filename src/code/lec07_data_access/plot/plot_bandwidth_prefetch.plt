@@ -7,7 +7,7 @@ set title "bandwidth w/ and w/o prefetch"
 
 set xrange [4096:1073741824]
 set logscale x 10
-set xtics 10
+set xtics 1e4, 10
 set format x "10^{%L}"
 set key right
 

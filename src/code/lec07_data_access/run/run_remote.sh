@@ -6,7 +6,7 @@
 #SBATCH --nodelist=g01
 #SBATCH --exclusive
 
-# spack load numactl@2.0.14
+source ./env.sh
 
 ./build.sh
 
@@ -15,6 +15,5 @@
 # export ACCESS_REGION_END=268435456
 
 export LATENCY_OUTPUT_FILENAME_PREFIX="cycle_remote"
-export LATENCY_OUTPUT_FILENAME_SUFFIX=".dat"
 
 numactl -N 0 -m 1 ./bin/mem

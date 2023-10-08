@@ -6,7 +6,7 @@
 #SBATCH --nodelist=g01
 #SBATCH --exclusive
 
-# spack load numactl@2.0.14
+source ./env.sh
 
 ./build.sh
 
@@ -16,6 +16,5 @@
 
 export PREFETCH_COUNT=0
 export LATENCY_OUTPUT_FILENAME_PREFIX="cycle_prefetch_0"
-export LATENCY_OUTPUT_FILENAME_SUFFIX=".dat"
 
 numactl -N 0 -m 0 ./bin/mem_prefetch

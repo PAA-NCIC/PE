@@ -7,7 +7,7 @@ set title "bandwidth with a number of chains"
 
 set xrange [134217728:1073741824]
 set logscale x 10
-set xtics 10
+set xtics 1e9, 10
 set format x "10^{%L}"
 set key outside right center
 
