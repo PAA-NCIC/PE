@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
+#include <math.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -11,6 +12,7 @@
 #include <omp.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <immintrin.h>
 
 #define L1_CACHE_SIZE (48 * 1024)
 #define L2_CACHE_SIZE (1280 * 1024)
@@ -18,6 +20,8 @@
 
 #define min(x, y) ((x) < (y) ? (x) : (y))
 #define max(x, y) ((x) < (y) ? (y) : (x))
+
+#define max3(x , y, z) (max(max(x, y),z))
 
 inline double dtime(){
     struct timeval t;

@@ -10,7 +10,7 @@ source ./env.sh
 
 ./build.sh
 
-export LATENCY_OUTPUT_FILENAME_PREFIX="cycle_thread16_chain1"
+export LATENCY_OUTPUT_FILENAME_PREFIX="mem_thread16_chain1"
 export OMP_NUM_THREADS=16
 
 numactl -N 0 -m 0 ./bin/mem_chain1_omp

@@ -12,6 +12,6 @@ set format x "10^{%L}"
 set key right center
 
 plot \
-'./data/cycle_prefetch_0.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "prefetch=0", \
-'./data/cycle_prefetch_10.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "prefetch=10",
+'./data/mem_prefetch_0.dat' using 1:3 lw 1 with linespoints title "prefetch=0", \
+'./data/mem_prefetch_10.dat' using 1:3 lw 1 with linespoints title "prefetch=10",
 

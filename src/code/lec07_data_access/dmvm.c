@@ -1,7 +1,5 @@
 #include "util.h"
 
-#include <immintrin.h>
-
 #define indexA(r,c) ((r) + (c) * (lda)) 
 
 void data_init(double** A_p, double** x_p, double** y_p, uint64_t row, uint64_t col){

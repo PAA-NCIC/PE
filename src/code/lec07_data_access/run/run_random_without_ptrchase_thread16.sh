@@ -10,7 +10,7 @@ source ./env.sh
 
 ./build.sh
 
-export LATENCY_OUTPUT_FILENAME_PREFIX="cycle_random_without_ptrchase_thread16"
+export LATENCY_OUTPUT_FILENAME_PREFIX="mem_random_without_ptrchase_thread16"
 export OMP_NUM_THREADS=16
 
 numactl -N 0 -m 0 ./bin/mem_random_without_ptrchase_omp
