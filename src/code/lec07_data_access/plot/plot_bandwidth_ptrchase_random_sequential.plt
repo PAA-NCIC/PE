@@ -5,14 +5,14 @@ set xlabel "size of region (bytes)"
 set ylabel "bandwidth (GB/sec)"
 set title "list traveral vs random access vs seqential access"
 
-set xrange [4096:1073741824]
+set xrange [256:1073741824]
 set logscale x 10
-set xtics 10
+set xtics 1e3, 10
 set format x "10^{%L}"
 set key right
 
 plot \
-'./data/cycle_local.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "ptrchase", \
-'./data/cycle_random_without_ptrchase.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "random", \
-'./data/cycle_seqential_without_ptrchase.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "seqential", 
+'./data/mem_local.dat' using 1:3 lw 1 with linespoints title "ptrchase", \
+'./data/mem_random_without_ptrchase.dat' using 1:3 lw 1 with linespoints title "random", \
+'./data/mem_seqential_without_ptrchase.dat' using 1:3 lw 1 with linespoints title "seqential", \
 
