@@ -12,6 +12,6 @@ set format x "10^{%L}"
 set key right
 
 plot \
-'./data/cycle_local.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "local", \
-'./data/cycle_remote.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "remote",
+'./data/mem_local.dat' using 1:3 lw 1 with linespoints title "local", \
+'./data/mem_remote.dat' using 1:3 lw 1 with linespoints title "remote",
 

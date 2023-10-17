@@ -1,8 +1,5 @@
 #include "util.h"
 
-#include <immintrin.h>
-
-
 void data_init(double** A_p, double** B_p, double** C_p, double** D_p, uint64_t len){
     *A_p = (double*)aligned_alloc(64, len * sizeof(double));
     *B_p = (double*)aligned_alloc(64, len * sizeof(double));

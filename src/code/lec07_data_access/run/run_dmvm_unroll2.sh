@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --partition=a100
+#SBATCH --partition=a800
 #SBATCH --job-name=unroll2
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --nodelist=g01
+#SBATCH --nodelist=g07
 #SBATCH --exclusive
 
 source ./env.sh

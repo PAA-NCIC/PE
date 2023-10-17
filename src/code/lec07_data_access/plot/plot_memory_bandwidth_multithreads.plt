@@ -12,12 +12,12 @@ set format x "10^{%L}"
 set key outside right center
 
 plot \
-'./data/cycle_thread1_chain1.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "1 chains, 1 threads", \
-'./data/cycle_thread1_chain10.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "10 chains, 1 threads", \
-'./data/cycle_thread4_chain1.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "1 chains, 4 threads", \
-'./data/cycle_thread4_chain10.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "10 chains, 4 threads", \
-'./data/cycle_thread8_chain1.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "1 chains, 8 threads", \
-'./data/cycle_thread8_chain10.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "10 chains, 8 threads", \
-'./data/cycle_thread16_chain1.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "1 chains, 16 threads", \
-'./data/cycle_thread16_chain10.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "10 chains, 16 threads"
+'./data/mem_thread1_chain1.dat' using 1:3 lw 1 with linespoints title "1 chains, 1 threads", \
+'./data/mem_thread1_chain10.dat' using 1:3 lw 1 with linespoints title "10 chains, 1 threads", \
+'./data/mem_thread4_chain1.dat' using 1:3 lw 1 with linespoints title "1 chains, 4 threads", \
+'./data/mem_thread4_chain10.dat' using 1:3 lw 1 with linespoints title "10 chains, 4 threads", \
+'./data/mem_thread8_chain1.dat' using 1:3 lw 1 with linespoints title "1 chains, 8 threads", \
+'./data/mem_thread8_chain10.dat' using 1:3 lw 1 with linespoints title "10 chains, 8 threads", \
+'./data/mem_thread16_chain1.dat' using 1:3 lw 1 with linespoints title "1 chains, 16 threads", \
+'./data/mem_thread16_chain10.dat' using 1:3 lw 1 with linespoints title "10 chains, 16 threads"
 

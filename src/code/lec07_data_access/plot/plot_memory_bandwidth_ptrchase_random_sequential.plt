@@ -12,7 +12,7 @@ set format x "10^{%L}"
 set key right center
 
 plot \
-'./data/cycle_local.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "ptrchase", \
-'./data/cycle_random_without_ptrchase.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "random", \
-'./data/cycle_seqential_without_ptrchase.dat' using 1:(64/$2*2.9*1e9/1024/1024/1024) lw 1 with linespoints title "seqential", 
+'./data/mem_local.dat' using 1:3 lw 1 with linespoints title "ptrchase", \
+'./data/mem_random_without_ptrchase.dat' using 1:3 lw 1 with linespoints title "random", \
+'./data/mem_seqential_without_ptrchase.dat' using 1:3 lw 1 with linespoints title "seqential", 
 
