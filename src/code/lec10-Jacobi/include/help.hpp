@@ -12,7 +12,7 @@ template <class T>
 void init_2d_array(T *matrix, int64_t m, int64_t n) {
   //unsigned seed = time(0);
   //srand(seed);
-  #pragma omp for
+  #pragma omp parallel for
   for(int64_t i = 0; i < m; i++) {
     for(int64_t j = 0; j < n; j++) {
       //random number in (0-10)
