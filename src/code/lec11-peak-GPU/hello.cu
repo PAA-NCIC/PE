@@ -10,5 +10,6 @@ __global__ void hello(int date) {
 
 int main() {
   hello<<<1,1>>>(2023);
+  cudaDeviceSynchronize();
   return 0;
 }
