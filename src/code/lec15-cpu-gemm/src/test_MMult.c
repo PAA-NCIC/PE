@@ -67,7 +67,7 @@ int main()
 
     /* Run the reference implementation so the answers can be compared */
 
-    //REF_MMult( m, n, k, ALIGN(a), lda, ALIGN(b), ldb, ALIGN(cref), ldc );
+    REF_MMult( m, n, k, ALIGN(a), lda, ALIGN(b), ldb, ALIGN(cref), ldc );
 
     /* Time the "optimized" implementation */
     for ( rep=0; rep<NREPEATS; rep++ ){
@@ -86,7 +86,7 @@ int main()
 	      dtime_best = ( dtime < dtime_best ? dtime : dtime_best );
     }
 
-    //diff = compare_matrices( m, n, ALIGN(c), ldc, ALIGN(cref), ldc );
+    diff = compare_matrices( m, n, ALIGN(c), ldc, ALIGN(cref), ldc );
 
     printf( "%d %le %le \n", p, gflops / dtime_best, diff );
     fflush( stdout );

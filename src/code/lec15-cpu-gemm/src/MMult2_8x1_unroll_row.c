@@ -40,14 +40,23 @@ void AddDot8x1( int k, double *a, int lda,  double *b, int ldb, double *c, int l
 
      In this version, we merge the four loops, computing four inner
      products simultaneously. */
+  double c0 = C(0,0), c1 = C(1,0), 
+         c2 = C(2,0), c3 = C(3,0), 
+         c4 = C(4,0), c5 = C(5,0),  
+         c6 = C(6,0), c7 = C(7,0);
+
+  asm volatile ("# simd begin");
   for (int p=0; p<k; p++ ){
-    C( 0, 0 ) += A( 0, p ) * B( p, 0 );     
-    C( 1, 0 ) += A( 1, p ) * B( p, 0 );     
-    C( 2, 0 ) += A( 2, p ) * B( p, 0 );     
-    C( 3, 0 ) += A( 3, p ) * B( p, 0 );     
-    C( 4, 0 ) += A( 4, p ) * B( p, 0 );     
-    C( 5, 0 ) += A( 5, p ) * B( p, 0 );     
-    C( 6, 0 ) += A( 6, p ) * B( p, 0 );     
-    C( 7, 0 ) += A( 7, p ) * B( p, 0 );     
+    c0 += A( 0, p ) * B( p, 0 );     
+    c1 += A( 1, p ) * B( p, 0 );     
+    c2 += A( 2, p ) * B( p, 0 );     
+    c3 += A( 3, p ) * B( p, 0 );     
+    c4 += A( 4, p ) * B( p, 0 );     
+    c5 += A( 5, p ) * B( p, 0 );     
+    c6 += A( 6, p ) * B( p, 0 );     
+    c7 += A( 7, p ) * B( p, 0 );     
   }
+  asm volatile ("# simd begin");
+  C(0,0)=c0;C(1,0)=c1;C(2,0)=c2;C(3,0)=c3;
+  C(4,0)=c4;C(5,0)=c5;C(6,0)=c6;C(7,0)=c7;
 }
