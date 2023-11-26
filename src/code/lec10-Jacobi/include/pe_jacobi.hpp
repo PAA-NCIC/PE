@@ -82,14 +82,24 @@ void pe_jacobi2d(double *y, double *x, int64_t jmax, int64_t kmax,
 		double scale, int64_t repeat);
 void pe_jacobi2d_blocking(double *y, double *x, uint64_t jmax,
 		uint64_t kmax, double scale, unsigned int kblock);
+void pe_jacobi2d_blocking_parallel(double *y, double *x, uint64_t jmax,
+		uint64_t kmax, double scale, unsigned int kblock);
 void pe_jacobi3d(double *y, double *x, int64_t imax, int64_t jmax,
 		int64_t kmax, double scale);
 void pe_jacobi3d_iparallel(double *y, double *x, int64_t imax, int64_t jmax, 
   int64_t kmax, double scale);
+void pe_jacobi3d_iparallel_block(double *y, double *x, int64_t imax, int64_t jmax, 
+  int64_t kmax, double scale, uint32_t jblock);
 void pe_jacobi3d_iparallel_ntstore(double *y, double *x, int64_t imax, int64_t jmax, 
   int64_t kmax, double scale);
+void pe_jacobi3d_iparallel_block_ntstore(double *y, double *x, int64_t imax, int64_t jmax, 
+  int64_t kmax, double scale, uint32_t iblock);
+void pe_jacobi3d_iparallel_block_ntstore256(double *y, double *x, int64_t imax, int64_t jmax, int64_t kmax, double scale, uint32_t jblock);
+void pe_jacobi3d_iparallel_block_ntstore512(double *y, double *x, int64_t imax, int64_t jmax, int64_t kmax, double scale, uint32_t jblock);
 
 void pe_jacobi3d_jparallel(double *y, double *x, int64_t imax, int64_t jmax, 
   int64_t kmax, double scale); 
 
+void pe_jacobi3d_iparallel_ntstore(double *y, double *x, int64_t imax, int64_t jmax, 
+  int64_t kmax, double scale);
 #endif
