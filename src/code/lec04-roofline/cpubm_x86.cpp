@@ -59,7 +59,7 @@ void reg_new_mem_bench(std::string isa,
     mem_bench_item.isa = isa;
     mem_bench_item.type = type;
     mem_bench_item.num_loops = num_loops;
-    mem_bench_item.data_volum_per_loop = data_volume_per_loop;
+    mem_bench_item.dv_per_loop = data_volume_per_loop;
     mem_bench_item.bench = bench;
     mem_bench_list.push_back(mem_bench_item);
 }
@@ -135,7 +135,7 @@ static void pe_execute_bench(smtl_handle sh,
 
             time_used = get_time(&start, &end);
 
-            perf = item->num_loops * item->data_volum_per_loop * num_threads; ///
+            perf = item->num_loops * item->dv_per_loop * num_threads; ///
                // time_used * 1e-9;
             
             stringstream ss;
