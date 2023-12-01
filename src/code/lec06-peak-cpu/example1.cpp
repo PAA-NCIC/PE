@@ -63,11 +63,13 @@ int main()
   const int vwidth = 64;
 #elif __AVX__
   const int vwidth = 32;
+#elif __SSE__ 
+  const int vwidth = 16
 #endif
   const int valign = sizeof(float);
   typedef float floatv __attribute__((vector_size(vwidth), aligned(valign)));
   const int L = sizeof(floatv) / sizeof(float);
-  cout << "SIMD width: " << L << endl;
+  cout << "SIMD width in float:  " << L << endl;
   floatv a, x, c;
   for(int i = 0; i < L; i++)
     a[i] = x[i] = c[i] = 1.0;
@@ -85,11 +87,11 @@ int main()
   //cpu core clocks
   ioctl(fd, PERF_EVENT_IOC_RESET, 0);
   ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
-
+  asm volatile("#simd: ax+c loop begin");
   for (int i = 0; i < n; i++) {
     x = a * x + c;
   }
-
+  asm volatile("#simd: ax+c loop end");
   ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
   end_cycle = rdtsc();
   clock_gettime(CLOCK_MONOTONIC_RAW, &end);
@@ -106,7 +108,7 @@ int main()
   cout << "flops per ref cycle:  " << 1.0 * flops / used_cycles << endl;
   cout << "cpu core clocks:      " << cpu_clocks << endl;
   cout << "flops per core cycle: " << 1.0 * flops / cpu_clocks << endl;
-  cout << "iter per core cycle:  " << 1.0 * cpu_clocks / n << endl;
+  cout << "core cycle per iter:  " << 1.0 * cpu_clocks / n << endl;
   //cout << "Ghz " << 1.0 * used_cycles /cpu_clocks << endl;
   cout << "Achieve flops:        " << flops / used_time  << endl;
   

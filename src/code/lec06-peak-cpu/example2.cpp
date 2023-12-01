@@ -68,7 +68,7 @@ int main()
   const int valign = sizeof(float);
   typedef float floatv __attribute__((vector_size(vwidth), aligned(valign)));
   const int L = sizeof(floatv) / sizeof(float);
-  cout << "SIMD width: " << L << endl;
+  cout << "SIMD width in float:  " << L << endl;
   floatv a, x, c, x1;
   for(int i = 0; i < L; i++)
     a[i] = x[i] = c[i] = x1[i] = 1.0;
@@ -136,7 +136,7 @@ int main()
   << "\t" << setw(13) << cpu_clocks_2chain << endl;
   cout << "flops per core cycle: " << setw(13) << flops_1chain / cpu_clocks_1chain \
   << "\t" << setw(13) << flops_1chain / cpu_clocks_1chain << endl;
-  cout << "iter per core cycle:  " << setw(13) << 1.0 * cpu_clocks_1chain / n \
+  cout << "core cycles per iter:" << setw(13) << 1.0 * cpu_clocks_1chain / n \
   << "\t" << setw(13) << 1.0 * cpu_clocks_2chain / n << endl;
   //cout << "Ghz " << 1.0 * used_cycles /cpu_clocks << endl;
   cout << "Achieve flops:        " << setw(13) << flops_1chain / used_time_1chain  \

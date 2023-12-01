@@ -125,7 +125,7 @@ int main()
   cout << "flops per ref cycle:  " << 1.0 * flops / used_cycles << endl;
   cout << "cpu core clocks:      " << cpu_clocks << endl;
   cout << "flops per core cycle: " << 1.0 * flops / cpu_clocks << endl;
-  cout << "iter per core cycle:  " << 1.0 * cpu_clocks / n << endl;
+  cout << "core cycles per iter: " << 1.0 * cpu_clocks / n << endl;
   //cout << "Ghz " << 1.0 * used_cycles /cpu_clocks << endl;
   cout << "Achieve flops:        " << flops / used_time  << endl;
 
