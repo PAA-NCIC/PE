@@ -219,7 +219,7 @@ int main()
     << ",\t" << flops / cpu_clocks << endl;
   }  
   //register optimize
-  cout << "we can help compiler do a better job..."
+  cout << "we can help compiler do a better job...\n";
   cout << setw(20) << "chains," << "\t" << setw(20) << "cycles/iter," \
   << "\t" << "flops/cycle" << endl;
   for(int i = 0; i < 16; i++ ) {

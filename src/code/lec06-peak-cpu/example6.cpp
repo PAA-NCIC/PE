@@ -32,6 +32,8 @@ double get_time(struct timespec *start,
 }
 
 const int n = 1000000;
+const int M = 100;
+
 #if __AVX512F__
   const int vwidth = 64;
 #elif __AVX__
@@ -49,7 +51,7 @@ static long perf_event_open(struct perf_event_attr *hw_event,
 
 //jb = 4, for example
 void axpy_simd(floatv *X, floatv a, floatv c, long m){
-  for(uint64_t i = 0; i < n; i += 4) {
+  for(uint32_t i = 0; i < n; i += 4) {
     for(uint32_t j = 0; j < m; j++) {
       for(uint32_t ii = 0; ii <  4; ii++) {
         X[j] = a * X[j] + c;
@@ -80,7 +82,9 @@ int main()
 
   const int L = sizeof(floatv) / sizeof(float);
   cout << "SIMD width: " << L << endl;
-  floatv a, c, x[16];
+  floatv a, c;
+  floatv *x = (floatv *)aligned_alloc(512, M * sizeof(floatv));
+
   for(int i = 0; i < L; i++)
     a[i] = c[i]= 1.0;
   for(int i = 0; i < 16; i++)
@@ -92,7 +96,7 @@ int main()
   cout << setw(20) << "chains," << "\t" << setw(20) << "cycles/iter," \
   << "\t" << "flops/cycle" << endl;
   
-  for(int i = 4; i <= 16; i+=4 ) {
+  for(int i = 0; i < M; i++ ) {
     //time
     clock_gettime(CLOCK_MONOTONIC_RAW, &start);
     //cpu ref clocks
