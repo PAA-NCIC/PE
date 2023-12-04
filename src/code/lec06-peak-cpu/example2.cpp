@@ -135,7 +135,7 @@ int main()
   cout << "cpu core clocks:      " << setw(13) << cpu_clocks_1chain \
   << "\t" << setw(13) << cpu_clocks_2chain << endl;
   cout << "flops per core cycle: " << setw(13) << flops_1chain / cpu_clocks_1chain \
-  << "\t" << setw(13) << flops_1chain / cpu_clocks_1chain << endl;
+  << "\t" << setw(13) << flops_2chain / cpu_clocks_2chain << endl;
   cout << "core cycles per iter:" << setw(13) << 1.0 * cpu_clocks_1chain / n \
   << "\t" << setw(13) << 1.0 * cpu_clocks_2chain / n << endl;
   //cout << "Ghz " << 1.0 * used_cycles /cpu_clocks << endl;
