@@ -39,7 +39,7 @@ void reg_new_fp_bench(std::string isa,
     new_one.num_loops = num_loops;
     new_one.flops_per_loop = flops_per_loop;
     new_one.bench = bench;
-    //fp_bench_list.push_back(new_one);
+    fp_bench_list.push_back(new_one);
 }
 
 static void thread_bench_fp(void *params)
@@ -69,7 +69,7 @@ void reg_new_mem_bench(std::string isa,
 static void thread_bench_mem(void *params)
 {
     cpu_mem_x86 *bm = (cpu_mem_x86 *)params;
-    printf("%u\n", bm->num_loops);
+    //printf("%u\n", bm->num_loops);
     for(uint32_t i = 0; i < bm->num_loops; i++) {
         bm->bench(bm->dv_per_loop, bm->src1);
     }
@@ -106,7 +106,7 @@ static void pe_execute_bench(smtl_handle sh,
             clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
             time_used = get_time(&start, &end);
-            printf("time_used:%lf\n", time_used);
+            //printf("time_used:%lf\n", time_used);
             perf = item->num_loops * item->flops_per_loop * num_threads /
                 time_used * 1e-9;
             
@@ -122,9 +122,10 @@ static void pe_execute_bench(smtl_handle sh,
         }
         case PEAK_MEM: {
             void *src;
-            int64_t total_size = ((cpu_mem_x86 *)params)->dv_per_loop * num_threads;
-            printf("%lu\n", total_size);
+            int64_t total_size = (int64_t)(((cpu_mem_x86 *)params)->dv_per_loop) * num_threads;
+            //printf("%lu\n", total_size);
             src = aligned_alloc(512, total_size);
+            memset(src, 0, total_size);
             cpu_mem_x86 *item = (cpu_mem_x86 *)malloc(sizeof(cpu_mem_x86) * num_threads);
             // warm up
             for (i = 0; i < num_threads; i++)
@@ -133,7 +134,7 @@ static void pe_execute_bench(smtl_handle sh,
                 item[i].dv_per_loop = ((cpu_mem_x86*)params)->dv_per_loop;
                 item[i].bench = ((cpu_mem_x86*)params)->bench;
                 item[i].src1 = (void *)((char *)src + i * item[i].dv_per_loop);
-                printf("%u, %p\n",  item[i].dv_per_loop,  item[i].src1);
+                //printf("%u, %p\n",  item[i].dv_per_loop,  item[i].src1);
                 smtl_add_task(sh, thread_bench_mem, (void*)&item[i]);
             }
             smtl_begin_tasks(sh);
@@ -149,7 +150,7 @@ static void pe_execute_bench(smtl_handle sh,
             smtl_wait_tasks_finished(sh);
             clock_gettime(CLOCK_MONOTONIC_RAW, &end);
             time_used = get_time(&start, &end);
-            printf("time_used:%lf\n", time_used);
+            //printf("time_used:%lf\n", time_used);
             perf = total_size * item[0].num_loops / time_used * 1e-9;
             
             free(item);
