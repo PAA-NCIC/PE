@@ -90,17 +90,17 @@ void AddDot24x8( int k, double *a, int lda,  double *b, int ldb, double *c, int 
 
   for ( int p=0; p<k; p++ ){ 
     a_0 = _mm512_load_pd(&A( 0 * 8, p ));
+    a_1 = _mm512_load_pd(&A( 1 * 8, p ));
+    a_2 = _mm512_load_pd(&A( 2 * 8, p ));
+
     b_0 = _mm512_set1_pd(BT(p , 0 ));
     c_00 = _mm512_fmadd_pd(a_0, b_0, c_00);
     b_1 = _mm512_set1_pd(BT(p , 1 ));
-    a_1 = _mm512_load_pd(&A( 1 * 8, p ));
     c_01 = _mm512_fmadd_pd(a_0, b_1, c_01);
     b_2 = _mm512_set1_pd(BT(p , 2 ));
     c_02 =  _mm512_fmadd_pd(a_0, b_2, c_02);
     b_3 = _mm512_set1_pd(BT(p , 3 ));
     c_03 =  _mm512_fmadd_pd(a_0, b_3, c_03);
-
-    a_2 =  _mm512_load_pd(&A( 2 * 8, p ));
     c_10 =  _mm512_fmadd_pd(a_1, b_0, c_10);
     c_11 =  _mm512_fmadd_pd(a_1, b_1, c_11);
     c_12 =  _mm512_fmadd_pd(a_1, b_2, c_12);

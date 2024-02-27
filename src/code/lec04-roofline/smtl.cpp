@@ -363,7 +363,7 @@ void smtl_wait_tasks_finished(smtl_handle sh)
 {
     int err = 0;
 
-    pthread_mutex_lock(&sh->pt_mtx);
+    err = pthread_mutex_lock(&sh->pt_mtx);
     if (err != 0)
     {
         fprintf(stderr, "ERROR: pt_mtx lock failed.\n");
@@ -371,7 +371,7 @@ void smtl_wait_tasks_finished(smtl_handle sh)
     }
     while (sh->thread_holds > 0)
     {
-        pthread_cond_wait(&sh->pt_cv, &sh->pt_mtx);
+        err = pthread_cond_wait(&sh->pt_cv, &sh->pt_mtx);
         if (err != 0)
         {
             fprintf(stderr, "ERROR: pt_cv wait failed.\n");
@@ -379,7 +379,7 @@ void smtl_wait_tasks_finished(smtl_handle sh)
         }
     }
     sh->cur_qid = 0;
-    pthread_mutex_unlock(&sh->pt_mtx);
+    err = pthread_mutex_unlock(&sh->pt_mtx);
     if (err != 0)
     {
         fprintf(stderr, "ERROR: pt_mtx unlock failed.\n");

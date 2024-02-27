@@ -25,7 +25,11 @@ void cpufp_kernel_x86_avx512_vnni_int16(int64_t);
 void cpufp_kernel_x86_avx_vnni_int8(int64_t);
 void cpufp_kernel_x86_avx_vnni_int16(int64_t);
 
-void pe_kernel_x86_avx512_vector_copy(int64_t, void *, void *, void *);
+/**********************************************
+ * size_byte: the size of memory to load in bytes
+ * src: memory ptr
+*/
+void load_kernel_x86_sse(int64_t size_byte, void *src);
 }
 
 static void parse_thread_pool(char *sets,
@@ -123,9 +127,8 @@ static void register_isa()
         cpufp_kernel_x86_avx_fp64);
 #endif
 #ifdef AVX512
-    reg_new_mem_bench("AVX512", "A[i]=B[i]", "GB/s",
-    0x20000000LL, 1024LL,
-    pe_kernel_x86_avx512_vector_copy);
+    reg_new_mem_bench("AVX512", "load A[i]", "GB/s",
+    20, 1024*1024*32, load_kernel_x86_sse);
 #endif
 }
 

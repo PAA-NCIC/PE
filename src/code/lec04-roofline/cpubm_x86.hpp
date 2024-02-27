@@ -14,9 +14,9 @@ void reg_new_fp_bench(std::string isa,
 void reg_new_mem_bench(std::string isa,
     std::string type,
     std::string dim,
-    int64_t num_loops,
-    int64_t data_volume_per_loop,
-    void (*bench)(int64_t, void*, void*, void*));
+    int32_t num_loops,
+    int32_t dv_per_loop,
+    void (*bench)(int64_t, void*));
     
 void pe_bench(std::vector<int> &set_of_threads);
 

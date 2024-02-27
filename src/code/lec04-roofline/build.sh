@@ -1,7 +1,7 @@
 #!/bin/bash
 #ins_set test
-g++ -O3 -c table.cpp
-g++ -O3 -c smtl.cpp
+g++ -g -O3 -c table.cpp
+g++ -g -O3 -c smtl.cpp
 ins_set=`lscpu | grep Flags`
 compile_commands=""
 
@@ -26,8 +26,8 @@ then
   #mem
   #compile_commands=${compile_commands}"g++ -c asm/pe_kernel_x86_avx512_vector_copy.cpp;"
   #link_sources=${link_sources}" pe_kernel_x86_avx512_vector_copy.o"
-  compile_commands=${compile_commands}"g++ -c asm/vector_copy.S;"
-  link_sources=${link_sources}" vector_copy.o"
+  compile_commands=${compile_commands}"g++ -c -O0 asm/load_kernel_x86_sse.S;"
+  link_sources=${link_sources}" load_kernel_x86_sse.o"
 fi
 
 #avx512_vnni instruction set check
@@ -48,14 +48,14 @@ then
 fi
 
 echo ${inst_flags}
-g++ -O3 -c cpubm_x86.cpp ${inst_flags}
-g++ -O3 -c pe_bench.cpp ${inst_flags}
+g++ -g -O2 -c cpubm_x86.cpp ${inst_flags}
+g++ -g -O2 -c pe_bench.cpp ${inst_flags}
 eval ${compile_commands}
 echo ${link_sources}
 eval ${link_sources}
 
 #clean
-#rm *.o
+rm *.o
 
 #for file in `ls .`; do
 #  echo $file
