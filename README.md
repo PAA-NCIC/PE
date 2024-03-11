@@ -1,2 +1,2 @@
-# 并行处理文档
-代完善......
+# 并行处理课件文档
+[请参见wiki详细介绍](https://github.com/PAA-NCIC/PE/wiki)https://github.com/PAA-NCIC/PE/wiki
