@@ -5,7 +5,7 @@ set xlabel "size of region (bytes)"
 set ylabel "bandwidth (GB/sec)"
 set title "summary of various access pattern"
 
-set xrange [134217728:1073741824]
+set xrange [134217728:]
 set logscale x 10
 set xtics 1e9, 10
 set format x "10^{%L}"

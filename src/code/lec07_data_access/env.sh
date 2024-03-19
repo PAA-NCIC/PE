@@ -1,7 +1,6 @@
 #!/bin/bash
 
-module load compiler/2022.0.2
-module load papi/7.0.1
-# spack load gcc@9.5.0
-spack load numactl@2.0.14
+module load intel/2022.1
+module load gcc/11.2
 
+# PAPI todo

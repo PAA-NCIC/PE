@@ -12,22 +12,91 @@
 
 typedef void* pointer;
 
-#define CACHE_LINE_SIZE 64
-
-#define FREQUENCY_GHZ 2.9
-
 typedef struct {
     pointer next;
     pointer prefetch;
     char padding[CACHE_LINE_SIZE - 2 * sizeof(pointer)];
 } Node_t;
 
+uint64_t ptr_list_cycle_detect(uint64_t* ptr, uint64_t index_region){
+    bool* access = aligned_alloc(64, sizeof(bool) * index_region);
+    for(uint64_t i = 0; i < index_region; ++i){
+        access[i] = false;
+    }
+    uint64_t pre_idx = 0;
+    uint64_t cycle_start = 0;
+    for(uint64_t i = 0; i < index_region + 1; ++i){
+        if(access[pre_idx]){
+            cycle_start = pre_idx;
+            // printf("cycle start : %ld\n", cycle_start);
+            break;
+        }else{
+            access[pre_idx] = true;
+            pre_idx = ptr[pre_idx];
+        }
+    }
+    for(uint64_t i = 0; i < index_region; ++i){
+        access[i] = false;
+    }
+    uint64_t cycle_size = 0;
+    pre_idx = cycle_start;
+    while(true){
+        if(access[pre_idx]){
+            // printf("cycle size : %ld\n", cycle_size);
+            break;
+        }else{
+            access[pre_idx] = true;
+            cycle_size += 1;
+            pre_idx = ptr[pre_idx];
+        }
+    }
+    free(access);
+    return cycle_size;
+}
+
+uint64_t node_list_cycle_detect(Node_t* node_list, uint64_t index_region){
+    bool* access = aligned_alloc(64, sizeof(bool) * index_region);
+    for(uint64_t i = 0; i < index_region; ++i){
+        access[i] = false;
+    }
+    Node_t* pre_ptr = node_list;
+    Node_t* cycle_start = 0;
+    for(uint64_t i = 0; i < index_region + 1; ++i){
+        uint64_t pre_idx = ((uint64_t)pre_ptr - (uint64_t)node_list) / sizeof(Node_t); 
+        if(access[pre_idx]){
+            // printf("cycle start : %ld\n", pre_idx);
+            cycle_start = pre_ptr;
+            break;
+        }else{
+            access[pre_idx] = true;
+            pre_ptr = (Node_t*)pre_ptr->next;
+        }
+    }
+    for(uint64_t i = 0; i < index_region; ++i){
+        access[i] = false;
+    }
+    uint64_t cycle_size = 0;
+    pre_ptr = cycle_start;
+    while(true){
+        uint64_t pre_idx = ((uint64_t)pre_ptr - (uint64_t)node_list) / sizeof(Node_t); 
+        if(access[pre_idx]){
+            // printf("cycle size : %ld\n", cycle_size);
+            break;
+        }else{
+            access[pre_idx] = true;
+            cycle_size += 1;
+            pre_ptr = (Node_t*)pre_ptr->next;
+        }
+    }
+    free(access);
+    return cycle_size;
+}
+
 static void gen_random_list(uint64_t** ptr_p, uint64_t index_region){
     printf("index_region : %ld\n", index_region);
     fflush(stdout);
     *ptr_p = aligned_alloc(64, sizeof(uint64_t) * index_region);
     uint64_t* ptr = *ptr_p;
-    bool* access = aligned_alloc(64, sizeof(bool) * index_region);
     srand(index_region);
     for(uint64_t i = 0; i < index_region; ++i){
         ptr[i] = i;
@@ -39,7 +108,9 @@ static void gen_random_list(uint64_t** ptr_p, uint64_t index_region){
         ptr[i] = ptr[target];
         ptr[target] = tmp;
     }
-    // let cycle_size == index_region
+    
+    // let cycle size == index_region
+    bool* access = aligned_alloc(64, sizeof(bool) * index_region);
     uint64_t cycle_size = 0;
     uint64_t gen_count = -1;
     // while(cycle_size < (uint64_t)(index_region * 0.9)){
@@ -510,6 +581,9 @@ uint64_t memory_test_kernel_ptrchase_multichain(
         DEFINE_CHAIN_13;
         DEFINE_CHAIN_14;
         DEFINE_CHAIN_15;
+
+        // for(int r = 0; r < 10; ++r){
+
         for(uint64_t i = 0; i < index_region; ++i){
             ACCESS_CHAIN_0;
             ACCESS_CHAIN_1;
@@ -528,11 +602,13 @@ uint64_t memory_test_kernel_ptrchase_multichain(
             ACCESS_CHAIN_14;
             ACCESS_CHAIN_15;
         }
-        
+
+        // }
+
         double time_start = dtime();
         uint64_t cycle_start = rdtsc();
 
-        for(int i = 0; i < repeat_count; i++){
+        for(int r = 0; r < repeat_count; r++){
             // RESET_CHAIN_0;
             // RESET_CHAIN_1;
             // RESET_CHAIN_2;
@@ -550,6 +626,7 @@ uint64_t memory_test_kernel_ptrchase_multichain(
             // RESET_CHAIN_14;
             // RESET_CHAIN_15;
             for(uint64_t i = 0; i < index_region; ++i){
+                __asm__ volatile ("# loop content begin");
                 ACCESS_CHAIN_0;
                 ACCESS_CHAIN_1;
                 ACCESS_CHAIN_2;
@@ -566,6 +643,7 @@ uint64_t memory_test_kernel_ptrchase_multichain(
                 ACCESS_CHAIN_13;
                 ACCESS_CHAIN_14;
                 ACCESS_CHAIN_15;
+                __asm__ volatile ("# loop content end");
             }
         }
 
@@ -621,6 +699,7 @@ uint64_t memory_test_kernel_ptrchase_multichain(
     double GBPS1 = 1.0 * thread_count * repeat_count * chains * index_region * sizeof(Node_t) / 1024./ 1024./ 1024./ avg_time;
     double GBPS2 = 64.0 / cycles * FREQUENCY_GHZ * 1e9 / 1024./1024./1024.;
 
+    printf("thread_count : %ld\n", thread_count);
     printf("avg_cycles : %ld\n", avg_cycles);
     printf("max_cycles : %ld\n", max_cycles);
     printf("min_cycles : %ld\n", min_cycles);
@@ -765,6 +844,7 @@ uint64_t memory_test_kernel_seqential_without_ptrchase(
     double GBPS1 = 1.0 * thread_count * repeat_count * index_region * CACHE_LINE_SIZE / 1024./1024./1024. / avg_time;
     double GBPS2 = 1.0 * CACHE_LINE_SIZE / cycles * FREQUENCY_GHZ * 1e9 / 1024./1024./1024.;
 
+    printf("thread_count : %ld\n", thread_count);
     printf("avg_cycles : %ld\n", avg_cycles);
     printf("max_cycles : %ld\n", max_cycles);
     printf("min_cycles : %ld\n", min_cycles);
@@ -894,6 +974,7 @@ uint64_t memory_test_kernel_random_without_ptrchase(
     double GBPS1 = 1.0 * thread_count * repeat_count * index_region * CACHE_LINE_SIZE / 1024./1024./1024. / avg_time;
     double GBPS2 = 1.0 * CACHE_LINE_SIZE / cycles * FREQUENCY_GHZ * 1e9 / 1024./1024./1024.;
 
+    printf("thread_count : %ld\n", thread_count);
     printf("avg_cycles : %ld\n", avg_cycles);
     printf("max_cycles : %ld\n", max_cycles);
     printf("min_cycles : %ld\n", min_cycles);

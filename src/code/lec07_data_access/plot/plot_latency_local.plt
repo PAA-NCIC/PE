@@ -5,7 +5,7 @@ set xlabel "size of region (bytes)"
 set ylabel "latency per load (CPU cycles)"
 set title "latency per load in a random list traveral"
 
-set xrange [256:1073741824]
+set xrange [512:]
 set logscale x 10
 set xtics 1e3, 10
 set format x "10^{%L}"

@@ -1,9 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=a800
 #SBATCH --job-name=local
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --nodelist=g07
 #SBATCH --exclusive
 
 source ./env.sh
@@ -15,4 +13,4 @@ source ./env.sh
 
 export LATENCY_OUTPUT_FILENAME_PREFIX="mem_local"
 
-numactl -N 0 -m 0 ./bin/mem
+time numactl -N 0 -m 0 ./bin/mem

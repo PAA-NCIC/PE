@@ -1,7 +1,0 @@
-
-CC      =   icc
-CFLAGS  =   -O1 -std=c11
-
-PAPI_HOME   =   /share/app/papi-7.0.1
-PAPI_INC    =   -I$(PAPI_HOME)/include
-PAPI_LIB    =   -L$(PAPI_HOME)/lib -lpapi

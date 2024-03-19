@@ -1,0 +1,7 @@
+
+CC      =   gcc
+CFLAGS  =   -O2 -std=c11 -march=native -Wformat=0
+
+PAPI_HOME   =   ${HOME}/software/papi-7.1.0
+PAPI_INC    =   -I${PAPI_HOME}/include
+PAPI_LIB    =   -L${PAPI_HOME}/lib -lpapi
