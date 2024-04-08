@@ -7,17 +7,6 @@ using namespace std;
 double get_time(struct timespec *start,
   struct timespec *end);
 
-using namespace std;
-
-struct CSR {
-	vector<double> val;
-	vector<int> col_ind;
-	vector<int> row_ptr;
-};
-
-
-CSR load_matrix(std::string filepath);
-
 //randomly generate sparse matrix
 template <class T>
 void init_2d_array(T *matrix, int64_t m, int64_t n) {

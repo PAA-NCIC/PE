@@ -13,10 +13,10 @@ pe:$(OBJ) $(KERNEL_OBJS)
 	$(CXX) $(OBJ) $(KERNEL_OBJS) -o $@
 
 ./src/%.o: ./src/%.cpp
-	$(CXX) $(CFLAGS) -c  $< -o $@
+	$(CXX) $(CFLAGS) -c -g $< -o $@
 
 ./src/kernel/%.o: ./src/kernels/%.cpp
-	$(CXX) $(CFLAGS) -c  $< -o $@
+	$(CXX) $(CFLAGS) -c  -g $< -o $@
 
 
 all: 
