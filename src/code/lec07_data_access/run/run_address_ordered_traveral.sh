@@ -1,9 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=a800
-#SBATCH --job-name=mem_address_ordered_traveral
+#SBATCH --job-name=local
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --nodelist=g07
 #SBATCH --exclusive
 
 source ./env.sh

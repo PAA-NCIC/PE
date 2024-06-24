@@ -7,7 +7,9 @@ void data_access_test(
     uint64_t chains, 
     FILE* cycle_file)
 {
+    printf("--------------------------------------------------------------\n");
     uint64_t repeat_count = max(access_count / access_region, 1);
+    // uint64_t repeat_count = 1;
 
     uint64_t index_region =  access_region / CACHE_LINE_SIZE;
  
@@ -16,34 +18,34 @@ void data_access_test(
     uint64_t** ptrs;
     gen_access_list_multichain(&ptrs, index_region, chains);
 
+    printf("cycle size : %ld\n", ptr_list_cycle_detect(ptrs[0], index_region));
+
     Node_t** node_list_list;
     gen_node_list_multichain(&node_list_list, ptrs, index_region, prefetch_count, chains);
 
 #ifdef DEF_PTRCHASE
-
     memory_test_kernel_ptrchase_multichain(node_list_list, index_region, repeat_count, chains, cycle_file);
-
 #else
-
 #ifdef DEF_RANDOM_WITHOUT_PTRCHASE
     memory_test_kernel_random_without_ptrchase(ptrs, access_region, index_region, repeat_count, cycle_file);
 #endif
 #ifdef DEF_SEQENTIAL_WITHOUT_PTRCHASE
     memory_test_kernel_seqential_without_ptrchase(access_region, index_region, repeat_count, cycle_file);
 #endif
-
 #endif
 
     release_access_list_multichain(ptrs, chains);
 
     release_node_list_multichain(node_list_list, chains);
+    printf("--------------------------------------------------------------\n");
 }
 
 int main(){
 
     uint64_t sample_points = env_get_uint64("SAMPLE_POINTS", 4);         
     uint64_t access_region_start = env_get_uint64("ACCESS_REGION_START", 256);  // bytes >= 256
-    uint64_t access_region_end = env_get_uint64("ACCESS_REGION_END", 1073741824);  // bytes
+    // uint64_t access_region_end = env_get_uint64("ACCESS_REGION_END", 256);  // bytes
+    uint64_t access_region_end = env_get_uint64("ACCESS_REGION_END", 2147483648);  // bytes
     uint64_t prefetch_count = env_get_uint64("PREFETCH_COUNT", 0);  // bytes
     
     uint64_t access_count = env_get_uint64("ACCESS_COUNT", access_region_end * 2);  // data accessed larger than L3 cache size

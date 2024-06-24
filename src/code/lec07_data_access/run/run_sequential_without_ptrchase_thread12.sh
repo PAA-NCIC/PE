@@ -1,9 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=a800
-#SBATCH --job-name=seqential12
+#SBATCH --job-name=sequential12
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --nodelist=g07
 #SBATCH --exclusive
 
 source ./env.sh

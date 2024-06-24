@@ -1,9 +1,7 @@
 #!/bin/bash
-#SBATCH --partition=a800
-#SBATCH --job-name=dmvm_avx512
+#SBATCH --job-name=dmvm_mflops_avx512
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --nodelist=g07
 #SBATCH --exclusive
 
 source ./env.sh

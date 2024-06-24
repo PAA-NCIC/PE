@@ -28,63 +28,6 @@ void data_release(double* A, double* x, double* y){
     free(y);
 }
 
-double dmvm_data_traffic_naive(uint64_t row, uint64_t col, FILE* output_file){
-    uint64_t mem_2_L3, L3_2_L2, L2_2_L1;
-    mem_2_L3 = 8;
-    L3_2_L2 = 8;
-    L2_2_L1 = 8;
-    if(row > (L1_CACHE_SIZE / sizeof(double) / 2)){ // 3072
-        L2_2_L1 += 16;
-    }
-    if(row > (L2_CACHE_SIZE / sizeof(double) / 2)){ // 81920
-        L3_2_L2 += 16;
-    }
-    if(row > (L3_CACHE_SIZE / sizeof(double) / 2)){ // 3538944
-        mem_2_L3 += 16;
-    }
-    fprintf(output_file, "%ld %ld %ld %ld\n", row, L2_2_L1, L3_2_L2, mem_2_L3);
-    fflush(output_file);
-}
-
-double dmvm_data_traffic_unroll2(uint64_t row, uint64_t col, FILE* output_file){
-    uint64_t mem_2_L3, L3_2_L2, L2_2_L1;
-    mem_2_L3 = 8;
-    L3_2_L2 = 8;
-    L2_2_L1 = 8;
-    if(row > (L1_CACHE_SIZE / sizeof(double) / 2)){ // 3072
-        L2_2_L1 += 16/2;
-    }
-    if(row > (L2_CACHE_SIZE / sizeof(double) / 2)){ // 81920
-        L3_2_L2 += 16/2;
-    }
-    if(row > (L3_CACHE_SIZE / sizeof(double) / 2)){ // 3538944
-        mem_2_L3 += 16/2;
-    }
-    fprintf(output_file, "%ld %ld %ld %ld\n", row, L2_2_L1, L3_2_L2, mem_2_L3);
-    fflush(output_file);
-}
-
-double dmvm_data_traffic_tiling(uint64_t row, uint64_t col, FILE* output_file){
-    const uint64_t ROW_TILING = env_get_uint64("ROW_TILING", 2048);  // bytes >= 256
-    printf("ROW_TILING : %ld\n", ROW_TILING);
-
-    uint64_t mem_2_L3, L3_2_L2, L2_2_L1;
-    mem_2_L3 = 8;
-    L3_2_L2 = 8;
-    L2_2_L1 = 8;
-    if(ROW_TILING > (L1_CACHE_SIZE / sizeof(double) / 2)){ // 3072
-        L2_2_L1 += 16/2;
-    }
-    if(ROW_TILING > (L2_CACHE_SIZE / sizeof(double) / 2)){ // 81920
-        L3_2_L2 += 16/2;
-    }
-    if(ROW_TILING > (L3_CACHE_SIZE / sizeof(double) / 2)){ // 3538944
-        mem_2_L3 += 16/2;
-    }
-    fprintf(output_file, "%ld %ld %ld %ld\n", row, L2_2_L1, L3_2_L2, mem_2_L3);
-    fflush(output_file);
-}
-
 double dmvm_kernel_naive(uint64_t row, uint64_t col, double* A, uint64_t lda, double* x, double* y, uint64_t repeat_count, FILE* output_file){
     // warm up
     for(uint64_t c = 0; c < col; ++c){
@@ -320,12 +263,6 @@ void dmvm_test(
     dmvm_kernel_unroll2(row, col, A, lda, x, y, adapative_repeat_count, output_file);
 #elif defined(DMVM_TILING)
     dmvm_kernel_tiling(row, col, A, lda, x, y, adapative_repeat_count, output_file);
-#elif defined(DMVM_DATA_TRAFFIC_NAVIE)
-    dmvm_data_traffic_naive(row, col, output_file);
-#elif defined(DMVM_DATA_TRAFFIC_UNROLL2)
-    dmvm_data_traffic_unroll2(row, col, output_file);
-#elif defined(DMVM_DATA_TRAFFIC_TILING)
-    dmvm_data_traffic_tiling(row, col, output_file);
 #else
     fprintf(stderr, "no define test kernel !!!\n");
     fflush(stderr);
