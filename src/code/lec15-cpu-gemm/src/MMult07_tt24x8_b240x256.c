@@ -8,8 +8,8 @@
 
 #define min( i, j ) ( (i)<(j) ? (i): (j) )
 /* Routine for computing C = A * B + C */
-#define mc 240
-#define kc 256
+#define mb 240
+#define kb 256
 
 static void AddDot24x8( int, double *, int,  double *, int, double *, int );
 static void InnerKernel( int m, int n, int k, double *a, int lda,  
@@ -22,10 +22,10 @@ void MY_MMult( int m, int n, int k, double *a, int lda,
 {
   int i, j, p, pb, ib;
 
-  for(p = 0; p < k; p += kc){
-    pb = min(k-p, kc);
-    for ( i=0; i<m; i+=mc ){        
-      ib = min(m-i, mc);
+  for(p = 0; p < k; p += kb){
+    pb = min(k-p, kb);
+    for ( i = 0; i < m; i += mb ){        
+      ib = min(m-i, mb);
       InnerKernel( ib, n, pb, &A( i,p ), lda, &B(p, 0 ), ldb, &C( i,0 ), ldc );
     }
   }
@@ -35,8 +35,8 @@ void MY_MMult( int m, int n, int k, double *a, int lda,
 void InnerKernel( int m, int n, int k, double *a, int lda,  
                                        double *b, int ldb, 
                                        double *c, int ldc) {
-	for(int i = 0; i < m; i+=24) {
-    for(int j = 0; j < n; j+=8) {
+	for(int i = 0; i < m; i += 24) {
+    for(int j = 0; j < n; j += 8) {
       AddDot24x8(k, &A(i,0), lda, &B(0,j), ldb, &C(i,j), ldc);
     }
   }

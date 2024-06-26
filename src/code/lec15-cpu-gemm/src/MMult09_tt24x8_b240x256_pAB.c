@@ -1,6 +1,4 @@
 #include <immintrin.h>
-//1024K private L2
-//half for C blocking, e.g., 512KB, can store
 /* Create macros so that the matrices are stored in column-major order */
 #define A(i,j) a[ (j)*lda + (i) ]
 #define B(i,j) b[ (j)*ldb + (i) ]
@@ -13,6 +11,7 @@
 #define kc 256
 #define mr 24
 #define nr 8
+#define nc 1300
 
 
 static void AddDot24x8( int, double *, int,  double *, int, double *, int );
@@ -44,17 +43,18 @@ void InnerKernel( int m, int n, int k, double *a, int lda,
                                        double *c, int ldc,
                                        int first_time) {
   double __attribute__((aligned(64))) packedA[m * k];
-  static double __attribute__((aligned(64))) packedB[kc * 1300];
+  static double __attribute__((aligned(64))) packedB[kc * nc];
   int i, j;
   for(j = 0; j < n; j+=nr) {
     if ( first_time )
       PackMatrixB( k, &B( 0, j ), ldb, &packedB[ j*k ] );
       //PackMatrixB( k, &B( 0, j ), ldb, &packedB[ j*k ] );
 	  for(i = 0; i < m; i+=mr) {
-      if(j == 0) 
-        PackMatrixA( k, &A( i, 0 ), lda, &packedA[ i*k ] );
+       if(j == 0) 
+         PackMatrixA( k, &A( i, 0 ), lda, &packedA[ i*k ] );
       //AddDot24x8(k, &A(i, 0), lda,  &B(0,j), ldb, &C(i,j), ldc);
       AddDot24x8(k, &packedA[i * k], mr, &packedB[ j*k ], nr, &C(i,j), ldc);
+      //AddDot24x8(k, &A(i, 0), lda, &packedB[ j*k ], nr, &C(i,j), ldc);
     }
   }
 }
@@ -92,27 +92,28 @@ void AddDot24x8( int k, double *a, int lda,  double *b, int ldb, double *c, int 
     a_0 = _mm512_load_pd(&A( 0 * 8, p ));
     a_1 = _mm512_load_pd(&A( 1 * 8, p ));
     a_2 = _mm512_load_pd(&A( 2 * 8, p ));
-
+    
     b_0 = _mm512_set1_pd(BT(p , 0 ));
-    c_00 = _mm512_fmadd_pd(a_0, b_0, c_00);
     b_1 = _mm512_set1_pd(BT(p , 1 ));
-    c_01 = _mm512_fmadd_pd(a_0, b_1, c_01);
     b_2 = _mm512_set1_pd(BT(p , 2 ));
-    c_02 =  _mm512_fmadd_pd(a_0, b_2, c_02);
     b_3 = _mm512_set1_pd(BT(p , 3 ));
+
+    c_00 = _mm512_fmadd_pd(a_0, b_0, c_00);
+    c_01 = _mm512_fmadd_pd(a_0, b_1, c_01);
+    c_02 =  _mm512_fmadd_pd(a_0, b_2, c_02);
     c_03 =  _mm512_fmadd_pd(a_0, b_3, c_03);
     c_10 =  _mm512_fmadd_pd(a_1, b_0, c_10);
     c_11 =  _mm512_fmadd_pd(a_1, b_1, c_11);
     c_12 =  _mm512_fmadd_pd(a_1, b_2, c_12);
     c_13 =  _mm512_fmadd_pd(a_1, b_3, c_13);
-
     c_20 =  _mm512_fmadd_pd(a_2, b_0, c_20);
-    b_0 = _mm512_set1_pd(BT(p , 4 ));
     c_21 =  _mm512_fmadd_pd(a_2, b_1, c_21);
-    b_1 = _mm512_set1_pd(BT(p , 5 ));
     c_22 =  _mm512_fmadd_pd(a_2, b_2, c_22);
-    b_2 = _mm512_set1_pd(BT(p , 6 ));
     c_23 =  _mm512_fmadd_pd(a_2, b_3, c_23);
+
+    b_0 = _mm512_set1_pd(BT(p , 4 ));
+    b_1 = _mm512_set1_pd(BT(p , 5 ));
+    b_2 = _mm512_set1_pd(BT(p , 6 ));
     b_3 = _mm512_set1_pd(BT(p , 7 ));
 
     c_04 = _mm512_fmadd_pd(a_0, b_0, c_04);

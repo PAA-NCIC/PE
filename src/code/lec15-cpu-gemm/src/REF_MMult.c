@@ -1,3 +1,4 @@
+#include "mkl.h"
 /* Create macros so that the matrices are stored in column-major order */
 
 #define A(i,j) a[ (j)*lda + (i) ]
@@ -10,15 +11,16 @@ void REF_MMult( int m, int n, int k, double *a, int lda,
                                     double *b, int ldb,
                                     double *c, int ldc )
 {
-  int i, j, p;
+  // int i, j, p;
 
-  for ( i=0; i<m; i++ ){
-    for ( j=0; j<n; j++ ){
-      for ( p=0; p<k; p++ ){
-	C( i,j ) = C( i,j ) +  A( i,p ) * B( p,j );
-      }
-    }
-  }
+  // for ( i=0; i<m; i++ ){
+  //   for ( j=0; j<n; j++ ){
+  //     for ( p=0; p<k; p++ ){
+	//       C( i,j ) = C( i,j ) +  A( i,p ) * B( p,j );
+  //     }
+  //   }
+  // }
+  cblas_dgemm(CblasColMajor, CblasNoTrans,CblasNoTrans,m,n,k,1.0,a,m,b,k,1.0,c,m);
 }
 
 
