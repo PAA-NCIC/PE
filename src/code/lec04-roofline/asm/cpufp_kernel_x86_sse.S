@@ -65,7 +65,6 @@ cpufp_kernel_x86_sse_fp64:
     addpd %xmm5, %xmm5
     mulpd %xmm6, %xmm6
     addpd %xmm7, %xmm7
-    sub $0x1, %rdi
     mulpd %xmm8, %xmm8
     addpd %xmm9, %xmm9
     mulpd %xmm10, %xmm10
@@ -74,6 +73,7 @@ cpufp_kernel_x86_sse_fp64:
     addpd %xmm13, %xmm13
     mulpd %xmm14, %xmm14
     addpd %xmm15, %xmm15
+    sub $0x1, %rdi
     jne .cpufp.x86.sse.fp64.L1
     ret
 

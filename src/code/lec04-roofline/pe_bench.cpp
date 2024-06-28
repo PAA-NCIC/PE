@@ -113,6 +113,7 @@ static void register_isa()
         0x20000000LL, 640LL,
         cpufp_kernel_x86_avx512_vnni_int16);
 #endif
+
 #ifdef AVX512
     reg_new_fp_bench("AVX512F", "FP32", "GFLOPS",
         0x20000000LL, 320LL,
@@ -120,7 +121,19 @@ static void register_isa()
     reg_new_fp_bench("AVX512F", "FP64", "GFLOPS",
         0x20000000LL, 160LL,
         cpufp_kernel_x86_avx512f_fp64);
+    reg_new_mem_bench("AVX512", "load A[i]", "GB/s",
+        50, 1024*1024*32, load_kernel_x86_avx512);
 #endif
+
+#ifdef AVX_VNNI
+    reg_new_fp_bench("AVX_VNNI", "INT8", "GFLOPS",
+        0x40000000LL, 640LL,
+        cpufp_kernel_x86_avx_vnni_int8);
+    reg_new_fp_bench("AVX_VNNI", "INT16", "GFLOPS",
+        0x40000000LL, 320LL,
+        cpufp_kernel_x86_avx_vnni_int16);
+#endif
+
 #ifdef AVX
     reg_new_fp_bench("AVX", "FP32", "GFLOPS",
         0x40000000LL, 96LL,
@@ -128,23 +141,29 @@ static void register_isa()
     reg_new_fp_bench("AVX", "FP64", "GFLOPS",
         0x40000000LL, 48LL,
         cpufp_kernel_x86_avx_fp64);
-#endif
-#ifdef SSE
-reg_new_mem_bench("SSE", "load A[i]", "GB/s",
-50, 1024*1024*32, load_kernel_x86_sse);
-#endif
-
-#ifdef AVX
     reg_new_mem_bench("AVX", "load A[i]", "GB/s",
-    50, 1024*1024*32, load_kernel_x86_avx);
+        50, 1024*1024*32, load_kernel_x86_avx);
 #endif
 
-#ifdef AVX512
-    reg_new_mem_bench("AVX512", "load A[i]", "GB/s",
-    50, 1024*1024*32, load_kernel_x86_avx512);
+#ifdef FMA
+    reg_new_fp_bench("FMA", "FP32", "GFLOPS",
+        0x80000000LL, 160LL,
+        cpufp_kernel_x86_fma_fp32);
+    reg_new_fp_bench("FMA", "FP64", "GFLOPS",
+        0x80000000LL, 80LL,
+        cpufp_kernel_x86_fma_fp64);
 #endif
 
-
+#ifdef SSE
+    reg_new_fp_bench("SSE", "FP32", "GFLOPS",
+        0x80000000LL, 64LL,
+        cpufp_kernel_x86_sse_fp32);
+    reg_new_fp_bench("SSE", "FP64", "GFLOPS",
+        0x80000000LL, 32LL,
+        cpufp_kernel_x86_sse_fp64);
+    reg_new_mem_bench("SSE", "load A[i]", "GB/s",
+        50, 1024*1024*32, load_kernel_x86_sse);
+#endif
 }
 
 int main(int argc, char *argv[])
