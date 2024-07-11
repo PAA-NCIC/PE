@@ -1,18 +1,18 @@
-OLD  := MMult9_tt24x8_b240x256_pAB
-#NEW	 := MMult0
-#NEW  := MMult1_register_cache_c
-#NEW  := MMult2_8x1_unroll_row
-#NEW	 := MMult3_8x1_simd
-#NEW	 := MMult4_8x8_tiling
-#NEW	 := MMult5_24x8_tiling
-#NEW	 := MMult6_24x8_blocking
-#NEW	 := MMult7_tt24x8_b240x256
-#NEW	 := MMult8_tt24x8_b240x256_pA
-#NEW	 := MMult9_tt24x8_b240x256_pAB
+OLD  := MMult00
+NEW	 := MMult00
+#NEW  := MMult01_register_cache_c
+#NEW  := MMult02_8x1_unroll_row
+#NEW	 := MMult03_8x1_simd
+#NEW	 := MMult04_8x8_tiling
+#NEW	 := MMult05_24x8_tiling
+#NEW	 := MMult06_24x8_blocking
+#NEW	 := MMult07_tt24x8_b240x256
+#NEW	 := MMult08_tt24x8_b240x256_pA
+#NEW	 := MMult09_tt24x8_b240x256_pAB
 #NEW	 := MMult10_prefetchA
 #NEW	 := MMult11_prefetchAB
 #NEW	 := MMult12_prefetchABC
-NEW	 := MMult13_finetune
+#NEW	 := MMult13_finetune
 #NEW	 := MMult_mkl
 
 #
@@ -51,7 +51,7 @@ test_MMult.x: $(TEST_OBJS) $(UTIL) parameters.h
 run:	
 	make all
 	export OMP_NUM_THREADS=1
-	export GOTO_NUM_THREADS=1
+	export MKL_NUM_THREADS=1
 	echo "version = '$(NEW)';" > output_$(NEW).m
 	./test_MMult.x | tee -a output_$(NEW).m
 	cp output_$(OLD).m output_old.m
